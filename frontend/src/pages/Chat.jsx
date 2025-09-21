@@ -269,25 +269,65 @@ const Chat = () => {
 
   const handleSendMessage = async () => {
     const messageContent = message?.trim()
-    if (!messageContent || isStreaming) {
-      console.log('Cannot send message:', { messageContent, isStreaming })
+    console.log('🚀 Send button clicked! Message:', messageContent)
+    
+    if (!messageContent) {
+      console.log('❌ No message content')
       return
     }
 
-    console.log('Sending message directly:', messageContent)
-    
-    if (!chatId) {
-      // Create new chat
-      setIsStreaming(true)
-      createChatMutation.mutate({
-        title: messageContent.substring(0, 50),
-        initialMessage: messageContent
-      })
-    } else {
-      // Send streaming message to existing chat
-      reset()
-      await sendStreamingMessage(chatId, messageContent)
+    if (isStreaming) {
+      console.log('❌ Already streaming')
+      return
     }
+
+    console.log('✅ Sending dummy message...')
+    
+    // Clear the input immediately
+    reset()
+    
+    // Set streaming state
+    setIsStreaming(true)
+    setStreamingMessage('AI is thinking...')
+    
+    // Simulate AI response after 2 seconds
+    setTimeout(() => {
+      const dummyResponses = [
+        "That's a great question! Based on your interests, I'd recommend focusing on developing your technical skills in programming languages like Python, JavaScript, or Java. These are highly sought after in the current job market.",
+        
+        "Excellent choice! For a career in software development, I suggest:\n\n1. **Learn Programming Fundamentals**\n   - Start with Python or JavaScript\n   - Practice on platforms like LeetCode\n\n2. **Build Projects**\n   - Create a portfolio on GitHub\n   - Build real-world applications\n\n3. **Network and Apply**\n   - Join tech communities\n   - Attend meetups and conferences",
+        
+        "Based on current industry trends, here are the most in-demand skills:\n\n**Technical Skills:**\n- Cloud Computing (AWS, Azure)\n- Machine Learning & AI\n- Cybersecurity\n- Mobile Development\n- Data Science\n\n**Soft Skills:**\n- Problem-solving\n- Communication\n- Teamwork\n- Adaptability",
+        
+        "Great question! Here's a roadmap for the next 6 months:\n\n**Month 1-2: Foundation**\n- Complete online courses\n- Set up development environment\n\n**Month 3-4: Practice**\n- Build 2-3 projects\n- Contribute to open source\n\n**Month 5-6: Job Preparation**\n- Update resume and LinkedIn\n- Practice coding interviews\n- Start applying to positions"
+      ]
+      
+      const randomResponse = dummyResponses[Math.floor(Math.random() * dummyResponses.length)]
+      
+      // Simulate streaming by showing content gradually
+      let currentText = ''
+      let index = 0
+      
+      const streamInterval = setInterval(() => {
+        if (index < randomResponse.length) {
+          const charsToAdd = Math.min(3, randomResponse.length - index)
+          currentText += randomResponse.slice(index, index + charsToAdd)
+          index += charsToAdd
+          
+          setStreamingContent(currentText)
+          setStreamingMessage('')
+        } else {
+          // Streaming complete
+          clearInterval(streamInterval)
+          setIsStreaming(false)
+          setStreamingContent('')
+          setStreamingMessage('')
+          
+          console.log('✅ Dummy response complete!')
+        }
+      }, 50)
+      
+    }, 1000)
   }
 
   const handleCopyMessage = (content) => {
@@ -650,8 +690,7 @@ const Chat = () => {
                   />
                   <button
                     type="button"
-                    disabled={!message?.trim() || isStreaming}
-                    className="absolute right-2 bottom-2 p-2 rounded-lg bg-primary-600 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary-700 transition-colors"
+                    className="absolute right-2 bottom-2 p-2 rounded-lg bg-primary-600 text-white hover:bg-primary-700 transition-colors cursor-pointer"
                     onClick={handleSendMessage}
                   >
                     {isStreaming ? (
