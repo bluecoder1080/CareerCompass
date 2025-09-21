@@ -6,6 +6,26 @@
 [![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
 [![React](https://img.shields.io/badge/React-18+-blue.svg)](https://reactjs.org/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-6+-green.svg)](https://www.mongodb.com/)
+[![Deployed](https://img.shields.io/badge/Status-Live-brightgreen.svg)](https://careercompass-fy7q.onrender.com)
+
+## 📋 Table of Contents
+
+- [🌟 Features](#-features)
+- [🚀 Quick Start](#-quick-start)
+- [🌐 Live Demo](#-live-demo)
+- [🐳 Docker Deployment](#-docker-deployment)
+- [🔧 Configuration](#-configuration)
+- [📁 Project Structure](#-project-structure)
+- [🎯 Usage Guide](#-usage-guide)
+- [🔌 API Documentation](#-api-documentation)
+- [🧪 Testing](#-testing)
+- [🚀 Deployment](#-deployment)
+- [🛠️ Development](#-development)
+- [🤝 Contributing](#-contributing)
+- [📝 License](#-license)
+- [🙏 Acknowledgments](#-acknowledgments)
+- [📞 Support](#-support)
+- [🗺️ Roadmap](#-roadmap)
 
 ## 🌟 Features
 
@@ -45,52 +65,53 @@
 
 - **Node.js** 18+ and npm
 - **MongoDB** 6+ (local or cloud)
-- **Redis** (optional, for background jobs)
 - **Git**
 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/careercompass.git
-cd careercompass
+git clone https://github.com/bluecoder1080/CareerCompass.git
+cd CareerCompass
 ```
 
-### 2. Environment Setup
+### 2. Install Dependencies
 
 ```bash
-# Copy environment variables
-cp .env.example .env
-
-# Install root dependencies
-npm install
-
 # Install all dependencies (frontend + backend)
 npm run install:all
+
+# Or install individually
+cd backend && npm install
+cd ../frontend && npm install
 ```
 
-### 3. Configure Environment Variables
+### 3. Environment Setup
 
-Edit `.env` file with your configuration:
+Create a `.env` file in the backend directory:
 
 ```env
 # Database
 MONGO_URI=mongodb://localhost:27017/careercompass
+# Or use MongoDB Atlas:
+# MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/careercompass
 
-# JWT
-JWT_SECRET=your-super-secret-jwt-key-here
+# JWT Configuration
+JWT_SECRET=your-super-secret-jwt-key-here-make-it-long-and-random
+JWT_EXPIRE=30d
 
 # AI/ML Services (choose one or more)
 GEMMA_API_KEY=your-gemma-api-key
 GEMMA_API_URL=https://api.gemma.com/v1
-HF_TOKEN=your-huggingface-token
-VERTEX_PROJECT_ID=your-vertex-project-id
+# HF_TOKEN=your-huggingface-token
+# VERTEX_PROJECT_ID=your-vertex-project-id
 
-# Optional: Redis for background jobs
-REDIS_URL=redis://localhost:6379
-
-# Server
+# Server Configuration
 PORT=5000
 FRONTEND_URL=http://localhost:5173
+
+# Rate Limiting
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX_REQUESTS=100
 ```
 
 ### 4. Database Setup
@@ -99,14 +120,14 @@ FRONTEND_URL=http://localhost:5173
 # Start MongoDB (if running locally)
 mongod
 
-# Seed the database with sample data
-npm run seed
+# Seed the database with sample data (optional)
+cd backend && npm run seed
 ```
 
 ### 5. Start Development Servers
 
 ```bash
-# Start both frontend and backend
+# Start both frontend and backend concurrently
 npm run dev
 
 # Or start individually:
@@ -118,7 +139,16 @@ npm run dev:frontend # Frontend on http://localhost:5173
 
 - **Frontend**: http://localhost:5173
 - **Backend API**: http://localhost:5000
-- **API Documentation**: http://localhost:5000/api-docs (if implemented)
+- **Health Check**: http://localhost:5000/health
+
+## 🌐 Live Demo
+
+🚀 **[Try CareerCompass Live](https://careercompass-fy7q.onrender.com)**
+
+**Demo Accounts:**
+- Email: `alex.johnson@example.com` | Password: `password123`
+- Email: `sarah.chen@example.com` | Password: `password123`
+- Email: `michael.rodriguez@example.com` | Password: `password123`
 
 ## 🐳 Docker Deployment
 
@@ -192,12 +222,12 @@ MONGO_URI=mongodb://admin:password@mongodb:27017/careercompass?authSource=admin
 ## 📁 Project Structure
 
 ```
-careercompass/
+CareerCompass/
 ├── 📁 backend/                 # Node.js/Express API
 │   ├── 📁 config/             # Database and app configuration
-│   ├── 📁 middleware/         # Express middleware
-│   ├── 📁 models/             # MongoDB/Mongoose models
-│   ├── 📁 routes/             # API route handlers
+│   ├── 📁 middleware/         # Express middleware (auth, error handling)
+│   ├── 📁 models/             # MongoDB/Mongoose models (8 models)
+│   ├── 📁 routes/             # API route handlers (auth, chat, profiles, etc.)
 │   ├── 📁 services/           # Business logic and ML integration
 │   ├── 📁 scripts/            # Database seeding and utilities
 │   ├── 📁 workers/            # Background job processors
@@ -208,28 +238,19 @@ careercompass/
 │   ├── 📁 public/             # Static assets
 │   ├── 📁 src/                # React source code
 │   │   ├── 📁 components/     # Reusable UI components
-│   │   ├── 📁 pages/          # Page components
+│   │   ├── 📁 pages/          # Page components (auth, dashboard, etc.)
 │   │   ├── 📁 stores/         # Zustand state management
 │   │   ├── 📁 lib/            # Utilities and API client
 │   │   └── 📄 main.jsx        # React entry point
 │   ├── 🐳 Dockerfile          # Frontend container config
 │   └── ⚙️ vite.config.js      # Vite configuration
 ├── 🐳 docker-compose.yml      # Development containers
+├── 🐳 docker-compose.prod.yml # Production containers
 ├── 📄 package.json            # Root package configuration
 └── 📖 README.md               # This file
 ```
 
 ## 🎯 Usage Guide
-
-### Demo Accounts
-
-Use these pre-seeded accounts to explore the platform:
-
-| Email | Password | Profile Type |
-|-------|----------|--------------|
-| alex.johnson@example.com | password123 | Frontend Developer |
-| sarah.chen@example.com | password123 | Data Scientist |
-| michael.rodriguez@example.com | password123 | Product Manager |
 
 ### Key Features Walkthrough
 
@@ -265,6 +286,10 @@ Use these pre-seeded accounts to explore the platform:
 
 ## 🔌 API Documentation
 
+### Base URLs
+- **Development**: `http://localhost:5000/api`
+- **Production**: `https://careercompass-backend-mssq.onrender.com/api`
+
 ### Authentication Endpoints
 
 ```http
@@ -272,6 +297,7 @@ POST /api/auth/register     # User registration
 POST /api/auth/login        # User login
 GET  /api/auth/me          # Get current user
 PUT  /api/auth/updatedetails # Update user details
+POST /api/auth/refresh     # Refresh JWT token
 ```
 
 ### Core Features
@@ -329,38 +355,49 @@ The seed script creates comprehensive test data:
 
 ## 🚀 Deployment
 
-### Render.com Deployment
+### Render.com Deployment (Recommended)
 
-1. **Backend Deployment**:
-   - Connect your GitHub repository
-   - Set build command: `cd backend && npm install`
-   - Set start command: `cd backend && npm start`
-   - Add environment variables from `.env.example`
+#### Backend Deployment
+1. **Service Name**: `careercompass-backend-mssq`
+2. **Language**: `Node.js`
+3. **Build Command**: `cd backend && npm install`
+4. **Start Command**: `cd backend && npm start`
+5. **Root Directory**: `backend`
 
-2. **Frontend Deployment**:
-   - Set build command: `cd frontend && npm install && npm run build`
-   - Set publish directory: `frontend/dist`
-   - Add environment variable: `VITE_API_URL=https://your-backend-url.onrender.com/api`
+**Environment Variables**:
+```env
+NODE_ENV=production
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret_key
+FRONTEND_URL=https://careercompass-fy7q.onrender.com
+```
 
-### Google Cloud Run
+#### Frontend Deployment
+1. **Service Name**: `careercompass-fy7q`
+2. **Type**: `Static Site`
+3. **Build Command**: `cd frontend && npm install && npm run build`
+4. **Publish Directory**: `dist`
+5. **Root Directory**: `frontend`
 
+### Alternative Deployment Options
+
+#### Google Cloud Run
 ```bash
-# Build and push backend
+# Backend
 gcloud builds submit --tag gcr.io/PROJECT-ID/careercompass-backend ./backend
 gcloud run deploy --image gcr.io/PROJECT-ID/careercompass-backend --platform managed
 
-# Build and push frontend
+# Frontend
 gcloud builds submit --tag gcr.io/PROJECT-ID/careercompass-frontend ./frontend
 gcloud run deploy --image gcr.io/PROJECT-ID/careercompass-frontend --platform managed
 ```
 
-### AWS ECS/Fargate
-
+#### AWS ECS/Fargate
 Use the provided `docker-compose.yml` as a reference for ECS task definitions.
 
 ## 🛠️ Development
 
-### Code Style
+### Code Quality
 
 ```bash
 # Lint code
@@ -380,7 +417,7 @@ npm run type-check
 3. **UI Components**: Create reusable components in `frontend/src/components/`
 4. **State Management**: Use Zustand stores in `frontend/src/stores/`
 
-### Environment Variables
+### Environment Variables Reference
 
 | Variable | Description | Required | Default |
 |----------|-------------|----------|---------|
@@ -407,6 +444,37 @@ npm run type-check
 - Update documentation as needed
 - Ensure all tests pass before submitting PR
 
+## 🔧 Troubleshooting
+
+### Common Issues
+
+#### CORS Errors
+- Ensure your frontend URL is added to backend CORS configuration
+- Check that the backend is deployed and accessible
+- Verify API base URL in frontend configuration
+
+#### Authentication Issues
+- Check JWT_SECRET is set and consistent across deployments
+- Verify MongoDB connection string
+- Ensure user registration/login endpoints are working
+
+#### AI/ML Service Issues
+- Verify API keys are correctly configured
+- Check that at least one AI provider is properly set up
+- Review service logs for specific error messages
+
+#### Database Connection Issues
+- Confirm MongoDB is running and accessible
+- Check connection string format
+- Verify database credentials and permissions
+
+### Getting Help
+
+1. **Check the logs**: Review backend and frontend console logs
+2. **Test endpoints**: Use tools like Postman to test API endpoints directly
+3. **Check environment variables**: Ensure all required variables are set
+4. **Review deployment settings**: Verify Render or other deployment configurations
+
 ## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -418,31 +486,33 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **React** and **Vite** for the modern frontend framework
 - **TailwindCSS** for the utility-first styling approach
 - **Framer Motion** for smooth animations and transitions
+- **Render** for hosting and deployment services
 
 ## 📞 Support
 
 - **Documentation**: Check this README and inline code comments
-- **Issues**: Report bugs and request features via GitHub Issues
-- **Discussions**: Join community discussions in GitHub Discussions
-- **Email**: Contact the team at support@careercompass.app
+- **Issues**: Report bugs and request features via [GitHub Issues](https://github.com/bluecoder1080/CareerCompass/issues)
+- **Discussions**: Join community discussions in [GitHub Discussions](https://github.com/bluecoder1080/CareerCompass/discussions)
+- **Email**: Contact the team at adityasingh1080z@gmail.com
 
 ## 🗺️ Roadmap
 
-### Phase 1 (Current)
+### Phase 1 (Current) ✅
 - ✅ Core MERN stack implementation
 - ✅ AI chat integration with multiple providers
 - ✅ Psychometric assessment with AI analysis
 - ✅ Resume builder with ATS optimization
 - ✅ Comprehensive user profiles
+- ✅ Deployment to Render
 
-### Phase 2 (Next)
+### Phase 2 (Next) 🔄
 - 🔄 Advanced analytics and reporting
 - 🔄 Integration with job boards (LinkedIn, Indeed)
 - 🔄 Video interview practice with AI feedback
 - 🔄 Skill assessment quizzes
 - 🔄 Mentorship matching system
 
-### Phase 3 (Future)
+### Phase 3 (Future) 📋
 - 📋 Mobile app (React Native)
 - 📋 Advanced ML models for better predictions
 - 📋 Company culture matching
@@ -451,8 +521,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Built with ❤️ by the CareerCompass Team**
+**Built with ❤️ by Aditya Singh**
 
-*Empowering professionals to navigate their career journey with AI-powered insights and personalized guidance.*
-#   C a r e e r C o m p a s s  
+*Empowering professionals to navigate their career journey with AI-powered insights and personalized guidance.*  
  
