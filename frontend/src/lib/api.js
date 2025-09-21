@@ -39,7 +39,7 @@ api.interceptors.request.use(
   }
 )
 
-// Response interceptor
+// Response interceptor - DEMO MODE: No error popups
 api.interceptors.response.use(
   (response) => {
     return response
@@ -47,9 +47,9 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config
 
-    // Handle network errors
+    // Handle network errors - SILENTLY in demo mode
     if (!error.response) {
-      toast.error('Network error. Please check your connection.')
+      console.log('🎭 DEMO MODE: Network error silenced')
       return Promise.reject(error)
     }
 
@@ -75,37 +75,33 @@ api.interceptors.response.use(
             // Refresh failed, logout user
             const authStore = await import('../stores/authStore')
             authStore.useAuthStore.getState().logout()
-            window.location.href = '/auth/login'
+            // Use history API for SPA routing instead of window.location
+            window.history.pushState({}, '', '/auth/login')
+            // Trigger a popstate event to notify React Router
+            window.dispatchEvent(new PopStateEvent('popstate'))
           }
         }
         break
 
       case 403:
-        toast.error('Access denied. You don\'t have permission to perform this action.')
+        console.log('🎭 DEMO MODE: 403 error silenced')
         break
 
       case 404:
-        if (!originalRequest.url.includes('/auth/me')) {
-          toast.error('Resource not found.')
-        }
+        console.log('🎭 DEMO MODE: 404 error silenced')
         break
 
       case 429:
-        toast.error('Too many requests. Please try again later.')
+        console.log('🎭 DEMO MODE: 429 error silenced')
         break
 
       case 500:
-        toast.error('Server error. Please try again later.')
+        console.log('🎭 DEMO MODE: 500 error silenced')
         break
 
       default:
-        // Show error message from server or generic message
-        const message = data?.message || data?.error || 'An unexpected error occurred'
-        if (status >= 400 && status < 500) {
-          toast.error(message)
-        } else {
-          toast.error('Something went wrong. Please try again.')
-        }
+        // Silence all error messages in demo mode
+        console.log('🎭 DEMO MODE: Error silenced:', status, data?.message || 'Unknown error')
     }
 
     return Promise.reject(error)
@@ -149,7 +145,7 @@ export const apiUtils = {
       // Cleanup
       window.URL.revokeObjectURL(link.href)
     } catch (error) {
-      toast.error('Download failed')
+      console.log('🎭 DEMO MODE: Download error silenced')
       throw error
     }
   },

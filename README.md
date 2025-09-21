@@ -1,12 +1,30 @@
-# CareerCompass 🧭
+<div align="center">
 
-> AI-powered career guidance platform with personalized recommendations, psychometric assessments, and intelligent resume building.
+# 🧭 CareerCompass
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
-[![React](https://img.shields.io/badge/React-18+-blue.svg)](https://reactjs.org/)
-[![MongoDB](https://img.shields.io/badge/MongoDB-6+-green.svg)](https://www.mongodb.com/)
-[![Deployed](https://img.shields.io/badge/Status-Live-brightgreen.svg)](https://careercompass-fy7q.onrender.com)
+### *Navigate Your Career Journey with AI-Powered Intelligence*
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![Node.js](https://img.shields.io/badge/Node.js-18+-339933.svg?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![React](https://img.shields.io/badge/React-18+-61DAFB.svg?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-6+-47A248.svg?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![AI Powered](https://img.shields.io/badge/AI-Powered-FF6B6B.svg?style=for-the-badge&logo=openai&logoColor=white)]()
+
+<p align="center">
+  <strong>🎯 AI-powered career guidance • 📊 Psychometric assessments • 📄 Smart resume building • 💬 Intelligent chat assistant</strong>
+</p>
+
+<p align="center">
+  <a href="#-features">Features</a> •
+  <a href="#-quick-start">Quick Start</a> •
+  <a href="#-live-demo">Live Demo</a> •
+  <a href="#-deployment">Deployment</a> •
+  <a href="#-contributing">Contributing</a>
+</p>
+
+</div>
+
+---
 
 ## 📋 Table of Contents
 
@@ -29,35 +47,69 @@
 
 ## 🌟 Features
 
+<table>
+<tr>
+<td width="50%">
+
 ### 🤖 AI-Powered Career Guidance
-- **Intelligent Chat Assistant**: Get personalized career advice using Gemma 2B or other LLM providers
-- **Psychometric Assessment**: 10-question personality test with AI-generated insights
-- **Career Path Recommendations**: Discover 3-5 career paths based on your profile and assessment
-- **Skill Gap Analysis**: Identify missing skills and get learning recommendations
+- **💬 Intelligent Chat Assistant**: Personalized career advice with advanced AI
+- **🧠 Psychometric Assessment**: Comprehensive personality analysis
+- **🎯 Career Path Recommendations**: Tailored career suggestions
+- **📈 Skill Gap Analysis**: Identify and bridge skill gaps
 
-### 📊 Comprehensive Dashboard
-- **Personalized Insights**: Real-time career recommendations and progress tracking
-- **6-Month Roadmap**: AI-generated development plan with actionable milestones
-- **Tech Updates Feed**: Curated industry news and trends relevant to your interests
-- **Progress Tracking**: Monitor your professional development journey
+</td>
+<td width="50%">
 
-### 📄 Smart Resume Builder
-- **AI-Powered Analysis**: Get ATS compatibility scores and improvement suggestions
-- **Multiple Templates**: Choose from modern, classic, creative, and minimal designs
-- **One-Click Export**: Generate PDF, DOCX, or HTML versions instantly
-- **Resume Upload**: Extract and analyze existing resumes automatically
+### 📊 Smart Analytics
+- **📋 Comprehensive Dashboard**: Real-time insights and progress tracking
+- **🗓️ 6-Month Roadmap**: AI-generated development plans
+- **📰 Tech Updates**: Curated industry news and trends
+- **📊 Progress Tracking**: Monitor your professional journey
 
-### 👤 Rich User Profiles
-- **Comprehensive Profiles**: Education, experience, skills, and career goals
-- **Portfolio Integration**: Showcase projects with GitHub sync capabilities
-- **Profile Completion Tracking**: Gamified profile building experience
-- **Privacy Controls**: Manage profile visibility and sharing settings
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+### 📄 Resume Intelligence
+- **🔍 AI-Powered Analysis**: ATS compatibility and optimization
+- **🎨 Multiple Templates**: Modern, professional designs
+- **📤 One-Click Export**: PDF, DOCX, HTML formats
+- **📁 Resume Upload**: Automatic parsing and analysis
+
+</td>
+<td width="50%">
+
+### 👤 Profile Management
+- **📝 Comprehensive Profiles**: Complete professional information
+- **💼 Portfolio Integration**: Showcase projects and achievements
+- **🎮 Gamified Experience**: Track profile completion progress
+- **🔒 Privacy Controls**: Manage visibility and sharing
+
+</td>
+</tr>
+</table>
 
 ### 🔧 Technical Excellence
-- **Modern Tech Stack**: MERN (MongoDB, Express, React, Node.js) with TypeScript support
-- **Responsive Design**: Mobile-first UI with dark theme and accessibility features
-- **Real-time Features**: Live chat, streaming responses, and instant updates
-- **Scalable Architecture**: Docker containerization and cloud-ready deployment
+
+<div align="center">
+
+| Frontend | Backend | Database | AI/ML |
+|----------|---------|----------|-------|
+| ⚛️ React 18+ | 🟢 Node.js | 🍃 MongoDB | 🤖 Google Gemini |
+| ⚡ Vite | 🚀 Express.js | 🔄 Mongoose ODM | 🤗 Hugging Face |
+| 🎨 TailwindCSS | 🔐 JWT Auth | ☁️ MongoDB Atlas | 🧠 Custom ML Models |
+| 🎭 Framer Motion | 📡 WebSocket | 📊 Aggregation Pipeline | 💭 Context-Aware AI |
+
+</div>
+
+**Key Technical Features:**
+- 📱 **Responsive Design**: Mobile-first UI with dark theme
+- ♿ **Accessibility**: WCAG compliant interface
+- ⚡ **Real-time Features**: Live chat and streaming responses
+- 🐳 **Containerized**: Docker-ready architecture
+- 🔒 **Secure**: JWT authentication and data encryption
+- 📈 **Scalable**: Cloud-native deployment ready
 
 ## 🚀 Quick Start
 
@@ -143,12 +195,13 @@ npm run dev:frontend # Frontend on http://localhost:5173
 
 ## 🌐 Live Demo
 
+<div align="center">
+
 🚀 **[Try CareerCompass Live](https://careercompass-fy7q.onrender.com)**
 
-**Demo Accounts:**
-- Email: `alex.johnson@example.com` | Password: `password123`
-- Email: `sarah.chen@example.com` | Password: `password123`
-- Email: `michael.rodriguez@example.com` | Password: `password123`
+*Experience the full power of AI-driven career guidance*
+
+</div>
 
 ## 🐳 Docker Deployment
 
@@ -288,7 +341,7 @@ CareerCompass/
 
 ### Base URLs
 - **Development**: `http://localhost:5000/api`
-- **Production**: `https://careercompass-backend-mssq.onrender.com/api`
+- **Production**: Configured via environment variables
 
 ### Authentication Endpoints
 
@@ -344,40 +397,28 @@ cd frontend && npm test
 npm test
 ```
 
-### Test Data
+### Test Coverage
 
-The seed script creates comprehensive test data:
-- 3 sample users with complete profiles
-- Sample chat conversations
-- Tech update articles
-- Project portfolios
-- Psychometric test results
+- Unit tests for API endpoints
+- Integration tests for AI services
+- Frontend component testing
+- End-to-end user flow testing
 
 ## 🚀 Deployment
 
-### Render.com Deployment (Recommended)
+### Cloud Deployment
 
-#### Backend Deployment
-1. **Service Name**: `careercompass-backend-mssq`
-2. **Language**: `Node.js`
-3. **Build Command**: `cd backend && npm install`
-4. **Start Command**: `cd backend && npm start`
-5. **Root Directory**: `backend`
+#### Backend Service
+- **Platform**: Node.js service
+- **Build**: `cd backend && npm install`
+- **Start**: `cd backend && npm start`
+- **Environment**: Production variables required
 
-**Environment Variables**:
-```env
-NODE_ENV=production
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret_key
-FRONTEND_URL=https://careercompass-fy7q.onrender.com
-```
-
-#### Frontend Deployment
-1. **Service Name**: `careercompass-fy7q`
-2. **Type**: `Static Site`
-3. **Build Command**: `cd frontend && npm install && npm run build`
-4. **Publish Directory**: `dist`
-5. **Root Directory**: `frontend`
+#### Frontend Service
+- **Type**: Static site
+- **Build**: `cd frontend && npm install && npm run build`
+- **Output**: `dist` directory
+- **Routing**: SPA configuration included
 
 ### Alternative Deployment Options
 
@@ -519,9 +560,29 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - 📋 Salary negotiation guidance
 - 📋 Career transition planning tools
 
+<div align="center">
+
 ---
 
-**Built with ❤️ by Aditya Singh**
+### 🚀 Ready to Transform Your Career?
 
-*Empowering professionals to navigate their career journey with AI-powered insights and personalized guidance.*  
+<p align="center">
+  <a href="https://careercompass-fy7q.onrender.com" target="_blank">
+    <img src="https://img.shields.io/badge/🌟_Try_CareerCompass-Live_Demo-FF6B6B?style=for-the-badge&logoColor=white" alt="Try CareerCompass">
+  </a>
+</p>
+
+<br>
+
+**Built with ❤️ for the developer community**
+
+*Empowering professionals to navigate their career journey with AI-powered insights and personalized guidance.*
+
+<p align="center">
+  <img src="https://img.shields.io/github/stars/bluecoder1080/CareerCompass?style=social" alt="GitHub stars">
+  <img src="https://img.shields.io/github/forks/bluecoder1080/CareerCompass?style=social" alt="GitHub forks">
+  <img src="https://img.shields.io/github/watchers/bluecoder1080/CareerCompass?style=social" alt="GitHub watchers">
+</p>
+
+</div>  
  

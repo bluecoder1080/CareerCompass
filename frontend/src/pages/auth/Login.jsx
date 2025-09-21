@@ -30,9 +30,9 @@ const Login = () => {
     // FORCE REDIRECT - No auth store, no API calls, just go!
     console.log('✅ Redirecting to dashboard...')
     
-    // Use window.location to completely bypass React Router and auth checks
+    // Use React Router navigate for proper SPA routing
     setTimeout(() => {
-      window.location.href = '/app/dashboard'
+      navigate(from, { replace: true })
     }, 500)
   }
 
