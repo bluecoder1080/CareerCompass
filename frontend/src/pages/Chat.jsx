@@ -240,10 +240,15 @@ const Chat = () => {
   }, [chatId])
 
   const onSubmit = async (data) => {
-    if (!data.message.trim()) return
+    console.log('Form submitted with data:', data)
+    if (!data.message?.trim()) {
+      console.log('Empty message, returning')
+      return
+    }
 
     if (!chatId) {
       // Create new chat
+      console.log('Creating new chat')
       setIsStreaming(true)
       createChatMutation.mutate({
         title: data.message.substring(0, 50),
@@ -251,6 +256,7 @@ const Chat = () => {
       })
     } else {
       // Send streaming message to existing chat
+      console.log('Sending message to existing chat:', chatId)
       const messageContent = data.message
       reset()
       await sendStreamingMessage(chatId, messageContent)
@@ -259,6 +265,29 @@ const Chat = () => {
 
   const handleNewChat = () => {
     navigate('/app/chat')
+  }
+
+  const handleSendMessage = async () => {
+    const messageContent = message?.trim()
+    if (!messageContent || isStreaming) {
+      console.log('Cannot send message:', { messageContent, isStreaming })
+      return
+    }
+
+    console.log('Sending message directly:', messageContent)
+    
+    if (!chatId) {
+      // Create new chat
+      setIsStreaming(true)
+      createChatMutation.mutate({
+        title: messageContent.substring(0, 50),
+        initialMessage: messageContent
+      })
+    } else {
+      // Send streaming message to existing chat
+      reset()
+      await sendStreamingMessage(chatId, messageContent)
+    }
   }
 
   const handleCopyMessage = (content) => {
@@ -620,15 +649,10 @@ const Chat = () => {
                     }}
                   />
                   <button
-                    type="submit"
+                    type="button"
                     disabled={!message?.trim() || isStreaming}
                     className="absolute right-2 bottom-2 p-2 rounded-lg bg-primary-600 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary-700 transition-colors"
-                    onClick={(e) => {
-                      if (!message?.trim() || isStreaming) {
-                        e.preventDefault()
-                        return
-                      }
-                    }}
+                    onClick={handleSendMessage}
                   >
                     {isStreaming ? (
                       <RefreshCw className="w-4 h-4 animate-spin" />
