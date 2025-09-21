@@ -251,8 +251,9 @@ const Chat = () => {
       })
     } else {
       // Send streaming message to existing chat
+      const messageContent = data.message
       reset()
-      await sendStreamingMessage(chatId, data.message)
+      await sendStreamingMessage(chatId, messageContent)
     }
   }
 
@@ -620,8 +621,14 @@ const Chat = () => {
                   />
                   <button
                     type="submit"
-                    disabled={!message.trim() || isStreaming}
+                    disabled={!message?.trim() || isStreaming}
                     className="absolute right-2 bottom-2 p-2 rounded-lg bg-primary-600 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary-700 transition-colors"
+                    onClick={(e) => {
+                      if (!message?.trim() || isStreaming) {
+                        e.preventDefault()
+                        return
+                      }
+                    }}
                   >
                     {isStreaming ? (
                       <RefreshCw className="w-4 h-4 animate-spin" />
@@ -632,7 +639,7 @@ const Chat = () => {
                 </div>
               </div>
               <p className="text-xs text-gray-500 mt-2 text-center">
-                Press Enter to send, Shift+Enter for new line • Powered by Google Gemini AI
+                Press Enter to send, Shift+Enter for new line
               </p>
             </form>
           </div>
