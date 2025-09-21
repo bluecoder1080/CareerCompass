@@ -11,6 +11,8 @@ require('dotenv').config();
 // Import routes
 const authRoutes = require('./routes/auth');
 const authMockRoutes = require('./routes/auth-mock');
+const authDemoRoutes = require('./routes/auth-demo');
+const chatDemoRoutes = require('./routes/chat-demo');
 const userRoutes = require('./routes/users');
 const profileRoutes = require('./routes/profiles');
 const chatRoutes = require('./routes/chat');
@@ -41,83 +43,27 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-// CORS configuration - Enhanced for development
-const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    const allowedOrigins = [
-      'http://localhost:5173',
-      'http://localhost:5174',
-      'http://localhost:5175',
-      'http://localhost:5176',
-      'http://127.0.0.1:5173',
-      'http://127.0.0.1:5174',
-      'http://127.0.0.1:5175',
-      'http://127.0.0.1:5176',
-      'https://careercompass-fy7q.onrender.com',
-      'https://careercompass-backend-mssq.onrender.com'
-    ];
-    
-    // In development, allow any localhost origin
-    if (process.env.NODE_ENV === 'development' && origin.includes('localhost')) {
-      console.log('🌐 CORS: Allowing development origin:', origin);
-      return callback(null, true);
-    }
-    
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      console.log('🌐 CORS: Allowing origin:', origin);
-      callback(null, true);
-    } else {
-      console.log('❌ CORS: Blocking origin:', origin);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-  optionsSuccessStatus: 200,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: [
-    'Content-Type', 
-    'Authorization', 
-    'Accept', 
-    'Origin', 
-    'User-Agent', 
-    'DNT', 
-    'Cache-Control', 
-    'X-Mx-ReqToken', 
-    'Keep-Alive', 
-    'X-Requested-With', 
-    'If-Modified-Since',
-    'X-Requested-With',
-    'Access-Control-Request-Method',
-    'Access-Control-Request-Headers'
-  ],
-};
-app.use(cors(corsOptions));
-
-// Handle preflight requests explicitly
-app.options('*', cors(corsOptions));
-
-// Fallback CORS handler for any remaining issues
+// CORS configuration - COMPLETELY OPEN FOR DEMO
 app.use((req, res, next) => {
-  const origin = req.headers.origin;
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+  res.header('Access-Control-Allow-Headers', '*');
   
-  // In development, allow all localhost origins
-  if (process.env.NODE_ENV === 'development' && origin && origin.includes('localhost')) {
-    res.header('Access-Control-Allow-Origin', origin);
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Access-Control-Allow-Methods', corsOptions.methods.join(', '));
-    res.header('Access-Control-Allow-Headers', corsOptions.allowedHeaders.join(', '));
-    console.log('🔧 Fallback CORS: Allowing development origin:', origin);
-  }
-
   if (req.method === 'OPTIONS') {
     res.sendStatus(200);
   } else {
     next();
   }
 });
+
+// Simple CORS for all routes
+app.use(cors({
+  origin: '*',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: '*'
+}));
 
 // Body parsing middleware
 app.use(compression());
@@ -138,19 +84,24 @@ app.use('/uploads', express.static('uploads'));
 app.get('/health', (req, res) => {
   res.status(200).json({
     success: true,
-    message: 'CareerCompass API is running',
+    message: 'CareerCompass API is running - DEMO MODE',
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV,
-    cors_origins: corsOptions.origin
+    environment: process.env.NODE_ENV || 'demo',
+    mode: 'DEMO - No CORS restrictions, No database required',
+    cors_policy: 'COMPLETELY OPEN'
   });
 });
 
-// API routes - Always use real database authentication
-console.log('🔐 Using database authentication');
-app.use('/api/auth', authRoutes);
+// API routes - DEMO MODE FOR JUDGES
+console.log('🎭 Using DEMO mode for judges - No database required!');
+app.use('/api/auth', authDemoRoutes);
+app.use('/api/chat', chatDemoRoutes);
+
+// Original routes (still available but not used in demo)
+app.use('/api/auth-real', authRoutes);
+app.use('/api/chat-real', chatRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/profiles', profileRoutes);
-app.use('/api/chat', chatRoutes);
 app.use('/api/psychotest', psychotestRoutes);
 app.use('/api/resumes', resumeRoutes);
 app.use('/api/projects', projectRoutes);
