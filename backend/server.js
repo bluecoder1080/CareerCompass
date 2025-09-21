@@ -41,12 +41,13 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-// CORS configuration - Allow multiple origins for development
+// CORS configuration - Allow multiple origins for development and production
 const corsOptions = {
   origin: [
     'http://localhost:5173',
     'http://localhost:5174',
     'http://localhost:5176',
+    'https://careercompass-fy7q.onrender.com',
     process.env.FRONTEND_URL
   ].filter(Boolean),
   credentials: true,
