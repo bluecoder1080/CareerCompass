@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="CareerCompass - AI-powered career guidance platform with personalized recommendations" />
+    <meta name="keywords" content="career, guidance, AI, jobs, skills, development, resume, psychometric" />
+    <meta name="author" content="CareerCompass Team" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://careercompass.app/" />
+    <meta property="og:title" content="CareerCompass - AI-Powered Career Guidance" />
+    <meta property="og:description" content="Get personalized career recommendations, skill assessments, and AI-powered guidance to accelerate your professional growth." />
+    <meta property="og:image" content="/og-image.png" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://careercompass.app/" />
+    <meta property="twitter:title" content="CareerCompass - AI-Powered Career Guidance" />
+    <meta property="twitter:description" content="Get personalized career recommendations, skill assessments, and AI-powered guidance to accelerate your professional growth." />
+    <meta property="twitter:image" content="/og-image.png" />
+
+    <!-- Preconnect to external domains -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <!-- <link rel="manifest" href="/site.webmanifest"> -->
+    
+    <title>CareerCompass - AI-Powered Career Guidance</title>
+    
+    <!-- Theme color for mobile browsers -->
+    <meta name="theme-color" content="#0b0f13" />
+    
+    <!-- Prevent FOUC (Flash of Unstyled Content) - TEMPORARILY DISABLED FOR DEBUGGING -->
+    <style>
+      /* html { visibility: hidden; opacity: 0; } */
+    </style>
+    
+    <!-- Critical CSS for initial render -->
+    <style>
+      body {
+        margin: 0;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        background-color: #0b0f13;
+        color: #e2e8f0;
+        line-height: 1.6;
+      }
+      
+      .loading-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #0b0f13;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+      }
+      
+      .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid #334155;
+        border-top: 3px solid #0ea5e9;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      /* Accessibility */
+      @media (prefers-reduced-motion: reduce) {
+        .loading-spinner {
+          animation: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Loading screen -->
+    <div id="loading-screen" class="loading-screen">
+      <div class="loading-spinner"></div>
+    </div>
+    
+    <!-- Main app container -->
+    <div id="root"></div>
+    
+    <!-- Remove loading screen and show content -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Remove FOUC prevention
+        document.documentElement.style.visibility = 'visible';
+        document.documentElement.style.opacity = '1';
+        
+        // Remove loading screen after a short delay
+        setTimeout(function() {
+          const loadingScreen = document.getElementById('loading-screen');
+          if (loadingScreen) {
+            loadingScreen.style.opacity = '0';
+            loadingScreen.style.transition = 'opacity 0.3s ease-out';
+            setTimeout(() => loadingScreen.remove(), 300);
+          }
+        }, 100);
+      });
+    </script>
+    
+    <!-- Service Worker Registration - Disabled for development -->
+    <!--
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/sw.js')
+            .then(function(registration) {
+              console.log('SW registered: ', registration);
+            })
+            .catch(function(registrationError) {
+              console.log('SW registration failed: ', registrationError);
+            });
+        });
+      }
+    </script>
+    -->
+    
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

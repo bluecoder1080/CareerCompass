@@ -1,0 +1,520 @@
+import { useState, useEffect, useRef } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
+import { 
+  Send, 
+  Bot, 
+  User, 
+  Plus, 
+  MessageCircle, 
+  Trash2, 
+  Archive,
+  MoreVertical,
+  Copy,
+  RefreshCw,
+  Sparkles
+} from 'lucide-react'
+import { useQuery, useMutation, useQueryClient } from 'react-query'
+import { useForm } from 'react-hook-form'
+import ReactMarkdown from 'react-markdown'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import { useAuthStore } from '../stores/authStore'
+import { api } from '../lib/api'
+import { formatDate, copyToClipboard, cn } from '../lib/utils'
+import toast from 'react-hot-toast'
+
+const Chat = () => {
+  const { chatId } = useParams()
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
+  const messagesEndRef = useRef(null)
+  const textareaRef = useRef(null)
+  
+  const [selectedChat, setSelectedChat] = useState(null)
+  const [isStreaming, setIsStreaming] = useState(false)
+  const [streamingMessage, setStreamingMessage] = useState('')
+  const [dropdownOpen, setDropdownOpen] = useState(null)
+  
+  const { user, getUserInitials } = useAuthStore()
+  
+  const { register, handleSubmit, reset, watch } = useForm()
+  const message = watch('message', '')
+
+  // Fetch chat list
+  const { data: chats = [], isLoading: chatsLoading } = useQuery(
+    'chats',
+    () => api.get('/chat').then(res => res.data.data),
+    {
+      staleTime: 2 * 60 * 1000, // 2 minutes
+    }
+  )
+
+  // Fetch current chat
+  const { data: currentChat, isLoading: chatLoading } = useQuery(
+    ['chat', chatId],
+    () => chatId ? api.get(`/chat/${chatId}`).then(res => res.data.data) : null,
+    {
+      enabled: !!chatId,
+      staleTime: 30 * 1000, // 30 seconds
+    }
+  )
+
+  // Create new chat mutation
+  const createChatMutation = useMutation(
+    (data) => api.post('/chat', data),
+    {
+      onSuccess: (response) => {
+        const newChat = response.data.data
+        queryClient.invalidateQueries('chats')
+        navigate(`/app/chat/${newChat._id}`)
+      },
+      onError: (error) => {
+        toast.error('Failed to create chat')
+      }
+    }
+  )
+
+  // Send message mutation
+  const sendMessageMutation = useMutation(
+    ({ chatId, message }) => api.post(`/chat/${chatId}/message`, { content: message }),
+    {
+      onSuccess: (response) => {
+        queryClient.invalidateQueries(['chat', chatId])
+        queryClient.invalidateQueries('chats')
+        reset()
+        setIsStreaming(false)
+        setStreamingMessage('')
+      },
+      onError: (error) => {
+        toast.error('Failed to send message')
+        setIsStreaming(false)
+        setStreamingMessage('')
+      }
+    }
+  )
+
+  // Delete chat mutation
+  const deleteChatMutation = useMutation(
+    (chatId) => api.delete(`/chat/${chatId}`),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('chats')
+        if (chatId === selectedChat) {
+          navigate('/app/chat')
+        }
+        toast.success('Chat deleted')
+      }
+    }
+  )
+
+  // Archive chat mutation
+  const archiveChatMutation = useMutation(
+    (chatId) => api.put(`/chat/${chatId}/archive`),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('chats')
+        toast.success('Chat archived')
+      }
+    }
+  )
+
+  // Auto-scroll to bottom
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [currentChat?.messages, streamingMessage])
+
+  // Auto-resize textarea
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto'
+      textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px'
+    }
+  }, [message])
+
+  // Set selected chat
+  useEffect(() => {
+    if (chatId) {
+      setSelectedChat(chatId)
+    }
+  }, [chatId])
+
+  const onSubmit = async (data) => {
+    if (!data.message.trim()) return
+
+    if (!chatId) {
+      // Create new chat
+      setIsStreaming(true)
+      createChatMutation.mutate({
+        title: data.message.substring(0, 50),
+        initialMessage: data.message
+      })
+    } else {
+      // Send message to existing chat
+      setIsStreaming(true)
+      setStreamingMessage('Thinking...')
+      
+      // Simulate streaming response
+      setTimeout(() => {
+        sendMessageMutation.mutate({
+          chatId,
+          message: data.message
+        })
+      }, 500)
+    }
+  }
+
+  const handleNewChat = () => {
+    navigate('/app/chat')
+  }
+
+  const handleCopyMessage = (content) => {
+    copyToClipboard(content)
+    toast.success('Message copied to clipboard')
+  }
+
+  const handleDeleteChat = (chatId) => {
+    if (window.confirm('Are you sure you want to delete this chat?')) {
+      deleteChatMutation.mutate(chatId)
+    }
+    setDropdownOpen(null)
+  }
+
+  const handleArchiveChat = (chatId) => {
+    archiveChatMutation.mutate(chatId)
+    setDropdownOpen(null)
+  }
+
+  const renderMessage = (msg, index) => {
+    const isUser = msg.role === 'user'
+    const isLast = index === currentChat.messages.length - 1
+
+    return (
+      <motion.div
+        key={msg._id || index}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className={cn(
+          'flex gap-4 p-4',
+          isUser ? 'flex-row-reverse' : 'flex-row'
+        )}
+      >
+        {/* Avatar */}
+        <div className={cn(
+          'w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium flex-shrink-0',
+          isUser 
+            ? 'bg-primary-600 text-white' 
+            : 'bg-gradient-to-br from-purple-500 to-pink-500 text-white'
+        )}>
+          {isUser ? getUserInitials() : <Bot className="w-4 h-4" />}
+        </div>
+
+        {/* Message content */}
+        <div className={cn(
+          'flex-1 max-w-3xl',
+          isUser ? 'text-right' : 'text-left'
+        )}>
+          <div className={cn(
+            'inline-block p-4 rounded-2xl',
+            isUser 
+              ? 'bg-primary-600 text-white rounded-br-md' 
+              : 'bg-dark-700 text-gray-200 rounded-bl-md border border-dark-600'
+          )}>
+            {isUser ? (
+              <p className="whitespace-pre-wrap">{msg.content}</p>
+            ) : (
+              <ReactMarkdown
+                components={{
+                  code({ node, inline, className, children, ...props }) {
+                    const match = /language-(\w+)/.exec(className || '')
+                    return !inline && match ? (
+                      <SyntaxHighlighter
+                        style={vscDarkPlus}
+                        language={match[1]}
+                        PreTag="div"
+                        className="rounded-lg my-2"
+                        {...props}
+                      >
+                        {String(children).replace(/\n$/, '')}
+                      </SyntaxHighlighter>
+                    ) : (
+                      <code className="bg-dark-600 px-1 py-0.5 rounded text-sm" {...props}>
+                        {children}
+                      </code>
+                    )
+                  }
+                }}
+              >
+                {msg.content}
+              </ReactMarkdown>
+            )}
+          </div>
+
+          {/* Message actions */}
+          {!isUser && (
+            <div className="flex items-center gap-2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button
+                onClick={() => handleCopyMessage(msg.content)}
+                className="p-1 text-gray-400 hover:text-gray-200 transition-colors"
+                title="Copy message"
+              >
+                <Copy className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
+          {/* Timestamp */}
+          <div className={cn(
+            'text-xs text-gray-500 mt-1',
+            isUser ? 'text-right' : 'text-left'
+          )}>
+            {formatDate(msg.timestamp, 'h:mm a')}
+          </div>
+        </div>
+      </motion.div>
+    )
+  }
+
+  return (
+    <div className="flex h-[calc(100vh-8rem)] bg-dark-950">
+      {/* Sidebar - Chat List */}
+      <div className="w-80 bg-dark-900/50 border-r border-dark-700 flex flex-col">
+        {/* Header */}
+        <div className="p-4 border-b border-dark-700">
+          <button
+            onClick={handleNewChat}
+            className="w-full btn-primary flex items-center justify-center"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            New Chat
+          </button>
+        </div>
+
+        {/* Chat List */}
+        <div className="flex-1 overflow-y-auto">
+          {chatsLoading ? (
+            <div className="p-4 space-y-3">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="skeleton h-16 rounded-lg"></div>
+              ))}
+            </div>
+          ) : chats.length === 0 ? (
+            <div className="p-4 text-center text-gray-400">
+              <MessageCircle className="w-12 h-12 mx-auto mb-3 opacity-50" />
+              <p className="text-sm">No chats yet</p>
+              <p className="text-xs">Start a conversation with AI</p>
+            </div>
+          ) : (
+            <div className="p-2">
+              {chats.map((chat) => (
+                <div
+                  key={chat._id}
+                  className={cn(
+                    'group relative p-3 rounded-lg cursor-pointer transition-colors mb-2',
+                    selectedChat === chat._id
+                      ? 'bg-primary-600/20 border border-primary-500/30'
+                      : 'hover:bg-dark-800/50'
+                  )}
+                  onClick={() => navigate(`/app/chat/${chat._id}`)}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-medium text-white truncate">
+                        {chat.title}
+                      </h3>
+                      <p className="text-xs text-gray-400 mt-1 truncate">
+                        {chat.lastMessage?.content || 'No messages yet'}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {formatDate(chat.analytics.lastActivity)}
+                      </p>
+                    </div>
+
+                    {/* Dropdown menu */}
+                    <div className="relative">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setDropdownOpen(dropdownOpen === chat._id ? null : chat._id)
+                        }}
+                        className="p-1 rounded opacity-0 group-hover:opacity-100 text-gray-400 hover:text-gray-200 transition-all"
+                      >
+                        <MoreVertical className="w-4 h-4" />
+                      </button>
+
+                      <AnimatePresence>
+                        {dropdownOpen === chat._id && (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="absolute right-0 top-full mt-1 w-32 bg-dark-800 border border-dark-600 rounded-lg shadow-lg py-1 z-10"
+                          >
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleArchiveChat(chat._id)
+                              }}
+                              className="w-full px-3 py-2 text-left text-sm text-gray-300 hover:bg-dark-700 transition-colors flex items-center"
+                            >
+                              <Archive className="w-4 h-4 mr-2" />
+                              Archive
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleDeleteChat(chat._id)
+                              }}
+                              className="w-full px-3 py-2 text-left text-sm text-error-400 hover:bg-error-500/10 transition-colors flex items-center"
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Delete
+                            </button>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Main Chat Area */}
+      <div className="flex-1 flex flex-col">
+        {chatId && currentChat ? (
+          <>
+            {/* Chat Header */}
+            <div className="p-4 border-b border-dark-700 bg-dark-900/30">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-lg font-semibold text-white">
+                    {currentChat.title}
+                  </h1>
+                  <p className="text-sm text-gray-400">
+                    {currentChat.messages?.length || 0} messages • {currentChat.category}
+                  </p>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs text-gray-500">
+                    AI Model: {currentChat.settings?.model || 'gemma-2b'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto">
+              {chatLoading ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="spinner w-8 h-8"></div>
+                </div>
+              ) : (
+                <div className="max-w-4xl mx-auto">
+                  {currentChat.messages?.map((msg, index) => (
+                    <div key={msg._id || index} className="group">
+                      {renderMessage(msg, index)}
+                    </div>
+                  ))}
+
+                  {/* Streaming message */}
+                  {isStreaming && streamingMessage && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex gap-4 p-4"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                        <Bot className="w-4 h-4 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="inline-block p-4 rounded-2xl rounded-bl-md bg-dark-700 border border-dark-600">
+                          <div className="flex items-center space-x-2">
+                            <div className="flex space-x-1">
+                              <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce"></div>
+                              <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                              <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                            </div>
+                            <span className="text-sm text-gray-400">{streamingMessage}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  <div ref={messagesEndRef} />
+                </div>
+              )}
+            </div>
+          </>
+        ) : (
+          /* Welcome Screen */
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center max-w-md">
+              <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-accent-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <Sparkles className="w-8 h-8 text-white" />
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-4">
+                Welcome to AI Career Chat
+              </h2>
+              <p className="text-gray-400 mb-8">
+                Get personalized career guidance, skill recommendations, and answers to your professional questions.
+              </p>
+              <button
+                onClick={handleNewChat}
+                className="btn-primary"
+              >
+                <MessageCircle className="w-4 h-4 mr-2" />
+                Start New Conversation
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Message Input */}
+        {(chatId || !chatId) && (
+          <div className="p-4 border-t border-dark-700 bg-dark-900/30">
+            <form onSubmit={handleSubmit(onSubmit)} className="max-w-4xl mx-auto">
+              <div className="flex items-end space-x-3">
+                <div className="flex-1 relative">
+                  <textarea
+                    {...register('message', { required: true })}
+                    ref={textareaRef}
+                    placeholder="Ask me about your career, skills, or professional goals..."
+                    className="w-full resize-none input py-3 pr-12 min-h-[44px] max-h-32"
+                    rows={1}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault()
+                        handleSubmit(onSubmit)()
+                      }
+                    }}
+                  />
+                  <button
+                    type="submit"
+                    disabled={!message.trim() || isStreaming}
+                    className="absolute right-2 bottom-2 p-2 rounded-lg bg-primary-600 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary-700 transition-colors"
+                  >
+                    {isStreaming ? (
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Send className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
+              </div>
+              <p className="text-xs text-gray-500 mt-2 text-center">
+                Press Enter to send, Shift+Enter for new line
+              </p>
+            </form>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+export default Chat

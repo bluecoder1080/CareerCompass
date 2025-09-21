@@ -1,0 +1,27 @@
+{
+  "name": "careercompass",
+  "version": "1.0.0",
+  "description": "AI-powered career guidance platform with personalized recommendations",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "start": "cd backend && npm start",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "seed": "cd backend && npm run seed",
+    "test": "cd backend && npm test",
+    "lint": "cd frontend && npm run lint && cd ../backend && npm run lint",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down"
+  },
+  "keywords": ["career", "ai", "guidance", "mern", "gemma"],
+  "author": "CareerCompass Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "eslint": "^8.57.0",
+    "prettier": "^3.0.0"
+  }
+}
