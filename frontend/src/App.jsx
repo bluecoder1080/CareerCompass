@@ -31,23 +31,16 @@ function App() {
 
   useEffect(() => {
     try {
-      initializeAuth()
+      // DEMO MODE: Skip auth initialization to prevent network errors
+      console.log('🎭 DEMO MODE: Skipping auth initialization')
       initializeTheme()
+      
+      // Force auth state to not loading
+      useAuthStore.setState({ isLoading: false, isAuthenticated: false })
     } catch (error) {
       console.error('App initialization failed:', error)
     }
-
-    // Timeout to prevent infinite loading
-    const timeout = setTimeout(() => {
-      if (isLoading) {
-        console.warn('App initialization timeout - forcing load')
-        // Force the loading state to false if it takes too long
-        useAuthStore.setState({ isLoading: false })
-      }
-    }, 5000)
-
-    return () => clearTimeout(timeout)
-  }, [initializeAuth, initializeTheme])
+  }, [initializeTheme])
 
   // Show loading screen while initializing (with inline styles as fallback)
   if (isLoading) {

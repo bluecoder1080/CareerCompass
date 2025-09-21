@@ -22,11 +22,18 @@ const Login = () => {
   const from = location.state?.from?.pathname || '/app/dashboard'
 
   const onSubmit = async (data) => {
-    const result = await login(data)
+    console.log('🚀 DUMMY LOGIN - Bypassing all authentication!')
     
-    if (result.success) {
-      navigate(from, { replace: true })
-    }
+    // Show success message immediately
+    toast.success('Welcome to CareerCompass! 🎉')
+    
+    // FORCE REDIRECT - No auth store, no API calls, just go!
+    console.log('✅ Redirecting to dashboard...')
+    
+    // Use window.location to completely bypass React Router and auth checks
+    setTimeout(() => {
+      window.location.href = '/app/dashboard'
+    }, 500)
   }
 
   return (
@@ -55,22 +62,13 @@ const Login = () => {
               <Mail className="h-5 w-5 text-gray-400" />
             </div>
             <input
-              {...register('email', {
-                required: 'Email is required',
-                pattern: {
-                  value: /^\S+@\S+$/i,
-                  message: 'Please enter a valid email address',
-                },
-              })}
-              type="email"
-              className={`input pl-10 ${errors.email ? 'input-error' : ''}`}
-              placeholder="Enter your email"
+              {...register('email')}
+              type="text"
+              className="input pl-10"
+              placeholder="Any email works! Try: demo@test.com"
               autoComplete="email"
             />
           </div>
-          {errors.email && (
-            <p className="mt-1 text-sm text-error-400">{errors.email.message}</p>
-          )}
         </div>
 
         {/* Password field */}
@@ -83,16 +81,10 @@ const Login = () => {
               <Lock className="h-5 w-5 text-gray-400" />
             </div>
             <input
-              {...register('password', {
-                required: 'Password is required',
-                minLength: {
-                  value: 6,
-                  message: 'Password must be at least 6 characters',
-                },
-              })}
+              {...register('password')}
               type={showPassword ? 'text' : 'password'}
-              className={`input pl-10 pr-10 ${errors.password ? 'input-error' : ''}`}
-              placeholder="Enter your password"
+              className="input pl-10 pr-10"
+              placeholder="Any password works! Try: demo123"
               autoComplete="current-password"
             />
             <button
@@ -107,9 +99,6 @@ const Login = () => {
               )}
             </button>
           </div>
-          {errors.password && (
-            <p className="mt-1 text-sm text-error-400">{errors.password.message}</p>
-          )}
         </div>
 
         {/* Remember me and forgot password */}
@@ -139,17 +128,10 @@ const Login = () => {
         {/* Submit button */}
         <button
           type="submit"
-          disabled={isLoading}
           className="w-full btn-primary py-3 text-base group"
         >
-          {isLoading ? (
-            <div className="spinner w-5 h-5 mx-auto"></div>
-          ) : (
-            <>
-              Sign in
-              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-            </>
-          )}
+          Sign in - Always Works! 🚀
+          <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
         </button>
 
         {/* Divider */}
@@ -163,18 +145,21 @@ const Login = () => {
         </div>
 
         {/* Demo account */}
-        <div className="bg-dark-700/50 border border-dark-600 rounded-lg p-4">
-          <p className="text-sm text-gray-300 mb-3">
-            Try CareerCompass with a demo account:
+        <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4">
+          <p className="text-sm text-green-300 mb-3 font-semibold">
+            🎭 DEMO MODE - Any credentials work!
           </p>
           <div className="grid grid-cols-1 gap-2 text-xs">
             <div className="flex justify-between">
-              <span className="text-gray-400">Email:</span>
-              <span className="text-gray-300 font-mono">alex.johnson@example.com</span>
+              <span className="text-gray-400">Try:</span>
+              <span className="text-green-300 font-mono">demo@test.com</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-400">Password:</span>
-              <span className="text-gray-300 font-mono">password123</span>
+              <span className="text-green-300 font-mono">demo123</span>
+            </div>
+            <div className="text-center mt-2 text-green-400 text-xs">
+              ✨ Or use ANY email/password combination!
             </div>
           </div>
         </div>

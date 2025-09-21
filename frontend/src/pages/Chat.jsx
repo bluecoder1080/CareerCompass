@@ -267,96 +267,87 @@ const Chat = () => {
     navigate('/app/chat')
   }
 
-  const handleSendMessage = async () => {
-    const messageContent = message?.trim()
-    console.log('🚀 Send button clicked! Message:', messageContent)
+  // Simple dummy chat messages state
+  const [dummyMessages, setDummyMessages] = useState([
+    {
+      id: '1',
+      role: 'assistant',
+      content: "Hello! 👋 I'm your AI Career Advisor. How can I help you today?",
+      timestamp: new Date()
+    }
+  ])
+
+  // Simple input state (no react-hook-form)
+  const [simpleMessage, setSimpleMessage] = useState('')
+
+  const handleSendMessage = () => {
+    const messageContent = simpleMessage.trim()
+    console.log('🚀 DUMMY CHAT - Send button clicked! Message:', messageContent)
     
     if (!messageContent) {
       console.log('❌ No message content')
       return
     }
 
-    if (isStreaming) {
-      console.log('❌ Already streaming')
-      return
+    console.log('✅ Adding dummy messages...')
+    
+    // Add user message immediately
+    const userMessage = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: messageContent,
+      timestamp: new Date()
     }
-
-    console.log('✅ Sending dummy message...')
     
-    // Clear the input immediately
-    reset()
+    // Clear input
+    setSimpleMessage('')
     
-    // Set streaming state
-    setIsStreaming(true)
-    setStreamingMessage('AI is thinking...')
+    // Add user message to dummy messages
+    setDummyMessages(prev => [...prev, userMessage])
     
-    // Smart response system - matches user input to appropriate response
+    // Smart AI responses
+    const smartResponses = {
+      'hi': "Hello! 👋 I'm your AI Career Advisor. How are you doing today? I'm here to help you with career guidance, skill development, and job search strategies!",
+      'hello': "Hi there! 😊 Great to meet you! I'm excited to help you navigate your career journey. What would you like to explore today?",
+      'hey': "Hey! 🌟 Welcome to CareerCompass! I'm your personal AI career coach. How can I assist you in achieving your professional goals?",
+      'career': "Excellent question! 🚀 Career planning is crucial for success. Here are the key areas I can help you with:\n\n**📊 Career Assessment**\n- Identify your strengths and interests\n- Explore suitable career paths\n\n**🎯 Skill Development**\n- In-demand technical skills\n- Soft skills that matter\n\n**💼 Job Search Strategy**\n- Resume optimization\n- Interview preparation\n\nWhat specific area interests you most?",
+      'skills': "Great focus on skills! 💪 Here are the most in-demand skills for 2024:\n\n**🔥 Technical Skills:**\n- **AI/Machine Learning** - Highest demand\n- **Cloud Computing** (AWS, Azure, GCP)\n- **Cybersecurity** - Critical need\n- **Data Science & Analytics**\n- **Mobile App Development**\n\n**🌟 Soft Skills:**\n- **Problem-solving** - Most valued\n- **Communication** - Essential everywhere\n- **Adaptability** - Key in changing markets\n- **Leadership** - Opens doors\n\nWhich area would you like to dive deeper into?",
+      'job': "Job searching can be exciting! 🎯 Here's my proven strategy:\n\n**📝 Phase 1: Preparation (Week 1-2)**\n- Polish your resume with keywords\n- Create compelling LinkedIn profile\n- Build portfolio/GitHub presence\n\n**🔍 Phase 2: Search & Apply (Week 3-6)**\n- Use multiple job boards (LinkedIn, Indeed, AngelList)\n- Network actively (70% of jobs are hidden!)\n- Apply to 10-15 positions weekly\n\n**🎤 Phase 3: Interview (Week 7+)**\n- Practice common questions\n- Research companies thoroughly\n- Follow up professionally\n\nWhat's your current stage in the job search?",
+      'salary': "Smart to think about compensation! 💰 Here's how to approach salary:\n\n**📊 Research Market Rates:**\n- Use Glassdoor, PayScale, levels.fyi\n- Consider location and experience\n- Factor in total compensation (benefits, equity)\n\n**💡 Negotiation Tips:**\n- Wait for the offer before discussing salary\n- Highlight your unique value\n- Be prepared to justify your ask\n- Consider non-salary benefits\n\n**🎯 Salary Ranges by Role:**\n- **Software Engineer**: $80k-$180k\n- **Data Scientist**: $90k-$200k\n- **Product Manager**: $100k-$220k\n- **DevOps Engineer**: $85k-$170k\n\nWhat role are you targeting?"
+    }
+    
+    // Find matching response
+    const userMessageLower = messageContent.toLowerCase()
+    let aiResponse = null
+    
+    for (const [key, response] of Object.entries(smartResponses)) {
+      if (userMessageLower.includes(key)) {
+        aiResponse = response
+        break
+      }
+    }
+    
+    // Default responses
+    if (!aiResponse) {
+      const defaults = [
+        "That's a great question! 🤔 Let me share some insights that might help you with your career journey.",
+        "I love your curiosity! 🌟 Here's what I'd recommend for your professional development.",
+        "Excellent point! 💡 Success in today's market requires strategic thinking and continuous growth."
+      ]
+      aiResponse = defaults[Math.floor(Math.random() * defaults.length)]
+    }
+    
+    // Add AI response after short delay
     setTimeout(() => {
-      const smartResponses = {
-        // Greetings
-        'hi': "Hello! 👋 I'm your AI Career Advisor. How are you doing today? I'm here to help you with career guidance, skill development, and job search strategies!",
-        'hello': "Hi there! 😊 Great to meet you! I'm excited to help you navigate your career journey. What would you like to explore today?",
-        'hey': "Hey! 🌟 Welcome to CareerCompass! I'm your personal AI career coach. How can I assist you in achieving your professional goals?",
-        'good morning': "Good morning! ☀️ Hope you're having a wonderful day! I'm here to help you make great career decisions. What's on your mind?",
-        'how are you': "I'm doing fantastic, thank you for asking! 🤖 I'm energized and ready to help you with your career questions. How are you feeling about your career path?",
-        
-        // Career questions
-        'career': "Excellent question! 🚀 Career planning is crucial for success. Here are the key areas I can help you with:\n\n**📊 Career Assessment**\n- Identify your strengths and interests\n- Explore suitable career paths\n\n**🎯 Skill Development**\n- In-demand technical skills\n- Soft skills that matter\n\n**💼 Job Search Strategy**\n- Resume optimization\n- Interview preparation\n\nWhat specific area interests you most?",
-        
-        'skills': "Great focus on skills! 💪 Here are the most in-demand skills for 2024:\n\n**🔥 Technical Skills:**\n- **AI/Machine Learning** - Highest demand\n- **Cloud Computing** (AWS, Azure, GCP)\n- **Cybersecurity** - Critical need\n- **Data Science & Analytics**\n- **Mobile App Development**\n\n**🌟 Soft Skills:**\n- **Problem-solving** - Most valued\n- **Communication** - Essential everywhere\n- **Adaptability** - Key in changing markets\n- **Leadership** - Opens doors\n\nWhich area would you like to dive deeper into?",
-        
-        'job': "Job searching can be exciting! 🎯 Here's my proven strategy:\n\n**📝 Phase 1: Preparation (Week 1-2)**\n- Polish your resume with keywords\n- Create compelling LinkedIn profile\n- Build portfolio/GitHub presence\n\n**🔍 Phase 2: Search & Apply (Week 3-6)**\n- Use multiple job boards (LinkedIn, Indeed, AngelList)\n- Network actively (70% of jobs are hidden!)\n- Apply to 10-15 positions weekly\n\n**🎤 Phase 3: Interview (Week 7+)**\n- Practice common questions\n- Research companies thoroughly\n- Follow up professionally\n\nWhat's your current stage in the job search?",
-        
-        'salary': "Smart to think about compensation! 💰 Here's how to approach salary:\n\n**📊 Research Market Rates:**\n- Use Glassdoor, PayScale, levels.fyi\n- Consider location and experience\n- Factor in total compensation (benefits, equity)\n\n**💡 Negotiation Tips:**\n- Wait for the offer before discussing salary\n- Highlight your unique value\n- Be prepared to justify your ask\n- Consider non-salary benefits\n\n**🎯 Salary Ranges by Role:**\n- **Software Engineer**: $80k-$180k\n- **Data Scientist**: $90k-$200k\n- **Product Manager**: $100k-$220k\n- **DevOps Engineer**: $85k-$170k\n\nWhat role are you targeting?"
+      const assistantMessage = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: aiResponse,
+        timestamp: new Date()
       }
       
-      // Find the best matching response
-      const userMessage = messageContent.toLowerCase()
-      let selectedResponse = null
-      
-      // Check for exact matches first
-      for (const [key, response] of Object.entries(smartResponses)) {
-        if (userMessage.includes(key)) {
-          selectedResponse = response
-          break
-        }
-      }
-      
-      // Default responses if no match found
-      if (!selectedResponse) {
-        const defaultResponses = [
-          "That's a fascinating question! 🤔 Let me share some insights that might help you:\n\n**Key Considerations:**\n- Industry trends are constantly evolving\n- Your personal interests and strengths matter most\n- Continuous learning is essential for success\n\nCould you tell me more about your specific situation so I can provide more targeted advice?",
-          
-          "I love your curiosity! 🌟 Here's what I'd recommend:\n\n**Immediate Steps:**\n1. **Assess your current skills** - What are you good at?\n2. **Research market demand** - What's hiring now?\n3. **Create a learning plan** - Bridge any skill gaps\n4. **Start networking** - Connect with industry professionals\n\nWhat aspect would you like to explore further?",
-          
-          "Excellent point! 💡 Success in today's market requires:\n\n**🎯 Strategic Thinking:**\n- Set clear, measurable goals\n- Create timeline with milestones\n- Regularly review and adjust\n\n**🚀 Continuous Growth:**\n- Stay updated with industry trends\n- Invest in learning new technologies\n- Build a strong professional network\n\nWhat's your biggest career challenge right now?"
-        ]
-        selectedResponse = defaultResponses[Math.floor(Math.random() * defaultResponses.length)]
-      }
-      
-      // Simulate streaming by showing content gradually
-      let currentText = ''
-      let index = 0
-      
-      const streamInterval = setInterval(() => {
-        if (index < selectedResponse.length) {
-          const charsToAdd = Math.min(3, selectedResponse.length - index)
-          currentText += selectedResponse.slice(index, index + charsToAdd)
-          index += charsToAdd
-          
-          setStreamingContent(currentText)
-          setStreamingMessage('')
-        } else {
-          // Streaming complete
-          clearInterval(streamInterval)
-          setIsStreaming(false)
-          setStreamingContent('')
-          setStreamingMessage('')
-          
-          console.log('✅ Smart response complete!')
-        }
-      }, 50)
-      
+      setDummyMessages(prev => [...prev, assistantMessage])
+      console.log('✅ AI response added!')
     }, 1000)
   }
 
@@ -379,7 +370,7 @@ const Chat = () => {
 
   const renderMessage = (msg, index) => {
     const isUser = msg.role === 'user'
-    const isLast = index === currentChat.messages.length - 1
+    const isLast = index === dummyMessages.length - 1
 
     return (
       <motion.div
@@ -575,168 +566,71 @@ const Chat = () => {
         </div>
       </div>
 
-      {/* Main Chat Area */}
+      {/* Main Chat Area - DUMMY CHAT ALWAYS VISIBLE */}
       <div className="flex-1 flex flex-col">
-        {chatId && currentChat ? (
-          <>
-            {/* Chat Header */}
-            <div className="p-4 border-b border-dark-700 bg-dark-900/30">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h1 className="text-lg font-semibold text-white">
-                    {currentChat.title}
-                  </h1>
-                  <p className="text-sm text-gray-400">
-                    {currentChat.messages?.length || 0} messages • {currentChat.category}
-                  </p>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-xs text-gray-500">
-                    AI Model: {currentChat.settings?.model || 'gemma-2b'}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto">
-              {chatLoading ? (
-                <div className="flex items-center justify-center h-full">
-                  <div className="spinner w-8 h-8"></div>
-                </div>
-              ) : (
-                <div className="max-w-4xl mx-auto">
-                  {currentChat.messages?.map((msg, index) => (
-                    <div key={msg._id || index} className="group">
-                      {renderMessage(msg, index)}
-                    </div>
-                  ))}
-
-                  {/* Streaming message */}
-                  {isStreaming && (streamingMessage || streamingContent) && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="flex gap-4 p-4"
-                    >
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                        <Bot className="w-4 h-4 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="inline-block p-4 rounded-2xl rounded-bl-md bg-dark-700 border border-dark-600">
-                          {streamingContent ? (
-                            <ReactMarkdown
-                              components={{
-                                code({ node, inline, className, children, ...props }) {
-                                  const match = /language-(\w+)/.exec(className || '')
-                                  return !inline && match ? (
-                                    <SyntaxHighlighter
-                                      style={vscDarkPlus}
-                                      language={match[1]}
-                                      PreTag="div"
-                                      className="rounded-lg my-2"
-                                      {...props}
-                                    >
-                                      {String(children).replace(/\n$/, '')}
-                                    </SyntaxHighlighter>
-                                  ) : (
-                                    <code className="bg-dark-600 px-1 py-0.5 rounded text-sm" {...props}>
-                                      {children}
-                                    </code>
-                                  )
-                                }
-                              }}
-                            >
-                              {streamingContent}
-                            </ReactMarkdown>
-                          ) : (
-                            <div className="flex items-center space-x-2">
-                              <div className="flex space-x-1">
-                                <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce"></div>
-                                <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                                <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                              </div>
-                              <span className="text-sm text-gray-400">{streamingMessage}</span>
-                            </div>
-                          )}
-                          {streamingContent && (
-                            <div className="mt-2 flex items-center space-x-1">
-                              <div className="w-1 h-4 bg-primary-500 animate-pulse"></div>
-                              <span className="text-xs text-gray-500">AI is typing...</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  <div ref={messagesEndRef} />
-                </div>
-              )}
-            </div>
-          </>
-        ) : (
-          /* Welcome Screen */
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center max-w-md">
-              <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-accent-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <Sparkles className="w-8 h-8 text-white" />
-              </div>
-              <h2 className="text-2xl font-bold text-white mb-4">
-                Welcome to AI Career Chat
-              </h2>
-              <p className="text-gray-400 mb-8">
-                Get personalized career guidance, skill recommendations, and answers to your professional questions.
+        {/* Chat Header */}
+        <div className="p-4 border-b border-dark-700 bg-dark-900/30">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-lg font-semibold text-white">
+                🎭 Demo Career Chat
+              </h1>
+              <p className="text-sm text-gray-400">
+                {dummyMessages.length} messages • AI Career Guidance
               </p>
-              <button
-                onClick={handleNewChat}
-                className="btn-primary"
-              >
-                <MessageCircle className="w-4 h-4 mr-2" />
-                Start New Conversation
-              </button>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="text-xs text-gray-500">
+                AI Model: Demo-GPT ✨
+              </span>
             </div>
           </div>
-        )}
+        </div>
 
-        {/* Message Input */}
-        {(chatId || !chatId) && (
-          <div className="p-4 border-t border-dark-700 bg-dark-900/30">
-            <form onSubmit={handleSubmit(onSubmit)} className="max-w-4xl mx-auto">
-              <div className="flex items-end space-x-3">
-                <div className="flex-1 relative">
-                  <textarea
-                    {...register('message', { required: true })}
-                    ref={textareaRef}
-                    placeholder="Ask me about your career, skills, or professional goals..."
-                    className="w-full resize-none input py-3 pr-12 min-h-[44px] max-h-32"
-                    rows={1}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault()
-                        handleSubmit(onSubmit)()
-                      }
-                    }}
-                  />
-                  <button
-                    type="button"
-                    className="absolute right-2 bottom-2 p-2 rounded-lg bg-primary-600 text-white hover:bg-primary-700 transition-colors cursor-pointer"
-                    onClick={handleSendMessage}
-                  >
-                    {isStreaming ? (
-                      <RefreshCw className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Send className="w-4 h-4" />
-                    )}
-                  </button>
-                </div>
+        {/* DUMMY MESSAGES - Simple and Always Works */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="max-w-4xl mx-auto">
+            {dummyMessages.map((msg, index) => (
+              <div key={msg.id} className="group">
+                {renderMessage(msg, index)}
               </div>
-              <p className="text-xs text-gray-500 mt-2 text-center">
-                Press Enter to send, Shift+Enter for new line
-              </p>
-            </form>
+            ))}
+            <div ref={messagesEndRef} />
           </div>
-        )}
+        </div>
+
+        {/* SIMPLE MESSAGE INPUT - Always Works */}
+        <div className="p-4 border-t border-dark-700 bg-dark-900/30">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex items-end space-x-3">
+              <div className="flex-1 relative">
+                <input
+                  type="text"
+                  value={simpleMessage}
+                  onChange={(e) => setSimpleMessage(e.target.value)}
+                  placeholder="Type 'Hi' to start chatting..."
+                  className="w-full input py-3 pr-12"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      handleSendMessage()
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  className="absolute right-2 bottom-2 p-2 rounded-lg bg-primary-600 text-white hover:bg-primary-700 transition-colors cursor-pointer"
+                  onClick={handleSendMessage}
+                >
+                  <Send className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 mt-2 text-center">
+              🎭 DEMO MODE: Type "Hi", "Career", "Skills", "Job", or "Salary" for smart responses!
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   )

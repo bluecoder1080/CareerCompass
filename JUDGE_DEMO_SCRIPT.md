@@ -9,15 +9,18 @@
 
 ---
 
-### **🔐 Step 1: Quick Login (30 seconds)**
+### **🔐 Step 1: Dummy Login - Always Works! (30 seconds)**
 ```
 1. Open: http://localhost:5173
 2. Click "Sign In"
-3. Enter: demo@careercompass.com / demo123
-4. Click "Sign In" → Instant access!
+3. Enter ANY email/password:
+   - Email: demo@test.com (or anything!)
+   - Password: demo123 (or anything!)
+4. Click "Sign in - Always Works! 🚀"
+5. → Instant access with success message!
 ```
 
-*"Notice how smooth the authentication is - no delays, no errors!"*
+*"Notice the green demo banner - ANY credentials work! Perfect for judges - zero chance of login failure!"*
 
 ---
 
