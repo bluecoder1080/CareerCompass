@@ -290,28 +290,58 @@ const Chat = () => {
     setIsStreaming(true)
     setStreamingMessage('AI is thinking...')
     
-    // Simulate AI response after 2 seconds
+    // Smart response system - matches user input to appropriate response
     setTimeout(() => {
-      const dummyResponses = [
-        "That's a great question! Based on your interests, I'd recommend focusing on developing your technical skills in programming languages like Python, JavaScript, or Java. These are highly sought after in the current job market.",
+      const smartResponses = {
+        // Greetings
+        'hi': "Hello! 👋 I'm your AI Career Advisor. How are you doing today? I'm here to help you with career guidance, skill development, and job search strategies!",
+        'hello': "Hi there! 😊 Great to meet you! I'm excited to help you navigate your career journey. What would you like to explore today?",
+        'hey': "Hey! 🌟 Welcome to CareerCompass! I'm your personal AI career coach. How can I assist you in achieving your professional goals?",
+        'good morning': "Good morning! ☀️ Hope you're having a wonderful day! I'm here to help you make great career decisions. What's on your mind?",
+        'how are you': "I'm doing fantastic, thank you for asking! 🤖 I'm energized and ready to help you with your career questions. How are you feeling about your career path?",
         
-        "Excellent choice! For a career in software development, I suggest:\n\n1. **Learn Programming Fundamentals**\n   - Start with Python or JavaScript\n   - Practice on platforms like LeetCode\n\n2. **Build Projects**\n   - Create a portfolio on GitHub\n   - Build real-world applications\n\n3. **Network and Apply**\n   - Join tech communities\n   - Attend meetups and conferences",
+        // Career questions
+        'career': "Excellent question! 🚀 Career planning is crucial for success. Here are the key areas I can help you with:\n\n**📊 Career Assessment**\n- Identify your strengths and interests\n- Explore suitable career paths\n\n**🎯 Skill Development**\n- In-demand technical skills\n- Soft skills that matter\n\n**💼 Job Search Strategy**\n- Resume optimization\n- Interview preparation\n\nWhat specific area interests you most?",
         
-        "Based on current industry trends, here are the most in-demand skills:\n\n**Technical Skills:**\n- Cloud Computing (AWS, Azure)\n- Machine Learning & AI\n- Cybersecurity\n- Mobile Development\n- Data Science\n\n**Soft Skills:**\n- Problem-solving\n- Communication\n- Teamwork\n- Adaptability",
+        'skills': "Great focus on skills! 💪 Here are the most in-demand skills for 2024:\n\n**🔥 Technical Skills:**\n- **AI/Machine Learning** - Highest demand\n- **Cloud Computing** (AWS, Azure, GCP)\n- **Cybersecurity** - Critical need\n- **Data Science & Analytics**\n- **Mobile App Development**\n\n**🌟 Soft Skills:**\n- **Problem-solving** - Most valued\n- **Communication** - Essential everywhere\n- **Adaptability** - Key in changing markets\n- **Leadership** - Opens doors\n\nWhich area would you like to dive deeper into?",
         
-        "Great question! Here's a roadmap for the next 6 months:\n\n**Month 1-2: Foundation**\n- Complete online courses\n- Set up development environment\n\n**Month 3-4: Practice**\n- Build 2-3 projects\n- Contribute to open source\n\n**Month 5-6: Job Preparation**\n- Update resume and LinkedIn\n- Practice coding interviews\n- Start applying to positions"
-      ]
+        'job': "Job searching can be exciting! 🎯 Here's my proven strategy:\n\n**📝 Phase 1: Preparation (Week 1-2)**\n- Polish your resume with keywords\n- Create compelling LinkedIn profile\n- Build portfolio/GitHub presence\n\n**🔍 Phase 2: Search & Apply (Week 3-6)**\n- Use multiple job boards (LinkedIn, Indeed, AngelList)\n- Network actively (70% of jobs are hidden!)\n- Apply to 10-15 positions weekly\n\n**🎤 Phase 3: Interview (Week 7+)**\n- Practice common questions\n- Research companies thoroughly\n- Follow up professionally\n\nWhat's your current stage in the job search?",
+        
+        'salary': "Smart to think about compensation! 💰 Here's how to approach salary:\n\n**📊 Research Market Rates:**\n- Use Glassdoor, PayScale, levels.fyi\n- Consider location and experience\n- Factor in total compensation (benefits, equity)\n\n**💡 Negotiation Tips:**\n- Wait for the offer before discussing salary\n- Highlight your unique value\n- Be prepared to justify your ask\n- Consider non-salary benefits\n\n**🎯 Salary Ranges by Role:**\n- **Software Engineer**: $80k-$180k\n- **Data Scientist**: $90k-$200k\n- **Product Manager**: $100k-$220k\n- **DevOps Engineer**: $85k-$170k\n\nWhat role are you targeting?"
+      }
       
-      const randomResponse = dummyResponses[Math.floor(Math.random() * dummyResponses.length)]
+      // Find the best matching response
+      const userMessage = messageContent.toLowerCase()
+      let selectedResponse = null
+      
+      // Check for exact matches first
+      for (const [key, response] of Object.entries(smartResponses)) {
+        if (userMessage.includes(key)) {
+          selectedResponse = response
+          break
+        }
+      }
+      
+      // Default responses if no match found
+      if (!selectedResponse) {
+        const defaultResponses = [
+          "That's a fascinating question! 🤔 Let me share some insights that might help you:\n\n**Key Considerations:**\n- Industry trends are constantly evolving\n- Your personal interests and strengths matter most\n- Continuous learning is essential for success\n\nCould you tell me more about your specific situation so I can provide more targeted advice?",
+          
+          "I love your curiosity! 🌟 Here's what I'd recommend:\n\n**Immediate Steps:**\n1. **Assess your current skills** - What are you good at?\n2. **Research market demand** - What's hiring now?\n3. **Create a learning plan** - Bridge any skill gaps\n4. **Start networking** - Connect with industry professionals\n\nWhat aspect would you like to explore further?",
+          
+          "Excellent point! 💡 Success in today's market requires:\n\n**🎯 Strategic Thinking:**\n- Set clear, measurable goals\n- Create timeline with milestones\n- Regularly review and adjust\n\n**🚀 Continuous Growth:**\n- Stay updated with industry trends\n- Invest in learning new technologies\n- Build a strong professional network\n\nWhat's your biggest career challenge right now?"
+        ]
+        selectedResponse = defaultResponses[Math.floor(Math.random() * defaultResponses.length)]
+      }
       
       // Simulate streaming by showing content gradually
       let currentText = ''
       let index = 0
       
       const streamInterval = setInterval(() => {
-        if (index < randomResponse.length) {
-          const charsToAdd = Math.min(3, randomResponse.length - index)
-          currentText += randomResponse.slice(index, index + charsToAdd)
+        if (index < selectedResponse.length) {
+          const charsToAdd = Math.min(3, selectedResponse.length - index)
+          currentText += selectedResponse.slice(index, index + charsToAdd)
           index += charsToAdd
           
           setStreamingContent(currentText)
@@ -323,7 +353,7 @@ const Chat = () => {
           setStreamingContent('')
           setStreamingMessage('')
           
-          console.log('✅ Dummy response complete!')
+          console.log('✅ Smart response complete!')
         }
       }, 50)
       
