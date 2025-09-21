@@ -1,8 +1,14 @@
 const axios = require('axios');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 class MLService {
   constructor() {
     this.providers = {
+      gemini: {
+        apiKey: process.env.GEMINI_API_KEY,
+        model: 'gemini-1.5-flash',
+        client: null,
+      },
       gemma: {
         apiKey: process.env.GEMMA_API_KEY,
         baseUrl: process.env.GEMMA_API_URL || 'https://api.gemma.com/v1',
@@ -24,11 +30,25 @@ class MLService {
     };
 
     this.activeProvider = this.selectProvider();
+    this.initializeGemini();
+  }
+
+  initializeGemini() {
+    if (this.providers.gemini.apiKey) {
+      try {
+        this.providers.gemini.client = new GoogleGenerativeAI(this.providers.gemini.apiKey);
+        console.log('✅ Google Gemini API initialized successfully');
+      } catch (error) {
+        console.error('❌ Failed to initialize Gemini API:', error.message);
+      }
+    }
   }
 
   selectProvider() {
-    // Priority order: Gemma -> Vertex -> HuggingFace -> Mock
-    if (this.providers.gemma.apiKey) {
+    // Priority order: Gemini -> Gemma -> Vertex -> HuggingFace -> Mock
+    if (this.providers.gemini.apiKey) {
+      return 'gemini';
+    } else if (this.providers.gemma.apiKey) {
       return 'gemma';
     } else if (this.providers.vertex.projectId) {
       return 'vertex';
@@ -50,6 +70,8 @@ class MLService {
 
     try {
       switch (this.activeProvider) {
+        case 'gemini':
+          return await this.callGeminiAPI(messages, { temperature, maxTokens, stream, context });
         case 'gemma':
           return await this.callGemmaAPI(messages, { temperature, maxTokens, stream, context });
         case 'vertex':
@@ -124,6 +146,88 @@ class MLService {
   }
 
   // Provider-specific implementations
+  async callGeminiAPI(messages, options) {
+    const { temperature, maxTokens, stream, context } = options;
+    
+    if (!this.providers.gemini.client) {
+      throw new Error('Gemini client not initialized');
+    }
+
+    try {
+      const model = this.providers.gemini.client.getGenerativeModel({ 
+        model: this.providers.gemini.model,
+        generationConfig: {
+          temperature: temperature || 0.7,
+          maxOutputTokens: maxTokens || 1000,
+        },
+      });
+
+      // Convert messages to Gemini format
+      const prompt = this.formatMessagesForGemini(messages, context);
+      
+      if (stream) {
+        // For streaming responses
+        const result = await model.generateContentStream(prompt);
+        return {
+          stream: result.stream,
+          model: this.providers.gemini.model,
+          provider: 'gemini',
+        };
+      } else {
+        // For regular responses
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
+
+        return {
+          content: text,
+          model: this.providers.gemini.model,
+          tokens: response.usageMetadata?.totalTokenCount || 0,
+          provider: 'gemini',
+        };
+      }
+    } catch (error) {
+      console.error('Gemini API error:', error);
+      throw error;
+    }
+  }
+
+  formatMessagesForGemini(messages, context = {}) {
+    // Build context-aware prompt
+    let prompt = '';
+    
+    // Add system context
+    if (context.userProfile) {
+      prompt += `User Profile Context:\n`;
+      if (context.userProfile.skills) {
+        prompt += `Skills: ${context.userProfile.skills.map(s => s.name).join(', ')}\n`;
+      }
+      if (context.userProfile.interests) {
+        prompt += `Interests: ${context.userProfile.interests.map(i => i.name).join(', ')}\n`;
+      }
+      if (context.userProfile.careerGoals) {
+        prompt += `Career Goals: ${context.userProfile.careerGoals.shortTerm?.join(', ') || 'Not specified'}\n`;
+      }
+      prompt += '\n';
+    }
+
+    // Add conversation context
+    prompt += 'You are CareerCompass AI, a professional career guidance assistant. Provide helpful, personalized career advice based on the user\'s profile and questions. Be conversational, supportive, and actionable in your responses.\n\n';
+    
+    // Add conversation history
+    messages.forEach(msg => {
+      if (msg.role === 'user') {
+        prompt += `Human: ${msg.content}\n`;
+      } else if (msg.role === 'assistant') {
+        prompt += `Assistant: ${msg.content}\n`;
+      }
+    });
+    
+    prompt += 'Assistant: ';
+    
+    return prompt;
+  }
+
   async callGemmaAPI(messages, options) {
     const { temperature, maxTokens, stream, context } = options;
     

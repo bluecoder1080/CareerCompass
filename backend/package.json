@@ -31,7 +31,8 @@
     "node-cron": "^3.0.3",
     "compression": "^1.7.4",
     "express-mongo-sanitize": "^2.2.0",
-    "xss": "^1.0.14"
+    "xss": "^1.0.14",
+    "@google/generative-ai": "^0.2.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.2",

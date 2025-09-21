@@ -3,7 +3,8 @@ import toast from 'react-hot-toast'
 
 // Create axios instance
 const api = axios.create({
-  baseURL: 'https://careercompass-backend-mssq.onrender.com/api',
+  baseURL: import.meta.env.VITE_API_URL || 
+           (import.meta.env.PROD ? 'https://careercompass-backend-mssq.onrender.com/api' : 'http://localhost:5000/api'),
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
@@ -17,6 +18,12 @@ api.interceptors.request.use(
     config.params = {
       ...config.params,
       _t: Date.now(),
+    }
+    
+    // Add authorization header if token exists
+    const token = localStorage.getItem('token')
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
     }
     
     return config

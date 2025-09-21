@@ -34,7 +34,9 @@ const Chat = () => {
   const [selectedChat, setSelectedChat] = useState(null)
   const [isStreaming, setIsStreaming] = useState(false)
   const [streamingMessage, setStreamingMessage] = useState('')
+  const [streamingContent, setStreamingContent] = useState('')
   const [dropdownOpen, setDropdownOpen] = useState(null)
+  const [eventSource, setEventSource] = useState(null)
   
   const { user, getUserInitials } = useAuthStore()
   
@@ -75,7 +77,7 @@ const Chat = () => {
     }
   )
 
-  // Send message mutation
+  // Send message mutation (regular)
   const sendMessageMutation = useMutation(
     ({ chatId, message }) => api.post(`/chat/${chatId}/message`, { content: message }),
     {
@@ -85,14 +87,103 @@ const Chat = () => {
         reset()
         setIsStreaming(false)
         setStreamingMessage('')
+        setStreamingContent('')
       },
       onError: (error) => {
         toast.error('Failed to send message')
         setIsStreaming(false)
         setStreamingMessage('')
+        setStreamingContent('')
       }
     }
   )
+
+  // Send streaming message
+  const sendStreamingMessage = async (chatId, message) => {
+    setIsStreaming(true)
+    setStreamingMessage('AI is thinking...')
+    setStreamingContent('')
+    
+    try {
+      const token = localStorage.getItem('token')
+      
+      // Use fetch with ReadableStream for streaming
+      const apiBaseUrl = import.meta.env.VITE_API_URL || 
+                        (import.meta.env.PROD ? 'https://careercompass-backend-mssq.onrender.com/api' : 'http://localhost:5000/api')
+      const response = await fetch(`${apiBaseUrl.replace('/api', '')}/api/chat/${chatId}/message/stream`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'text/event-stream',
+        },
+        body: JSON.stringify({ content: message }),
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
+      
+      while (true) {
+        const { done, value } = await reader.read()
+        
+        if (done) {
+          setIsStreaming(false)
+          setStreamingMessage('')
+          setStreamingContent('')
+          break
+        }
+        
+        const chunk = decoder.decode(value)
+        const lines = chunk.split('\n')
+        
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6))
+              
+              switch (data.type) {
+                case 'start':
+                  setStreamingMessage(data.message)
+                  break
+                case 'chunk':
+                  setStreamingContent(data.fullContent)
+                  setStreamingMessage('')
+                  break
+                case 'complete':
+                  setStreamingContent('')
+                  setStreamingMessage('')
+                  setIsStreaming(false)
+                  queryClient.invalidateQueries(['chat', chatId])
+                  queryClient.invalidateQueries('chats')
+                  return
+                case 'error':
+                  toast.error(data.error || 'Failed to get AI response')
+                  setIsStreaming(false)
+                  setStreamingMessage('')
+                  setStreamingContent('')
+                  return
+                case 'end':
+                  return
+              }
+            } catch (parseError) {
+              console.error('Failed to parse SSE data:', parseError)
+            }
+          }
+        }
+      }
+      
+    } catch (error) {
+      console.error('Streaming error:', error)
+      toast.error('Failed to send message')
+      setIsStreaming(false)
+      setStreamingMessage('')
+      setStreamingContent('')
+    }
+  }
 
   // Delete chat mutation
   const deleteChatMutation = useMutation(
@@ -122,7 +213,16 @@ const Chat = () => {
   // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [currentChat?.messages, streamingMessage])
+  }, [currentChat?.messages, streamingMessage, streamingContent])
+  
+  // Cleanup event source on unmount
+  useEffect(() => {
+    return () => {
+      if (eventSource) {
+        eventSource.close()
+      }
+    }
+  }, [eventSource])
 
   // Auto-resize textarea
   useEffect(() => {
@@ -150,17 +250,9 @@ const Chat = () => {
         initialMessage: data.message
       })
     } else {
-      // Send message to existing chat
-      setIsStreaming(true)
-      setStreamingMessage('Thinking...')
-      
-      // Simulate streaming response
-      setTimeout(() => {
-        sendMessageMutation.mutate({
-          chatId,
-          message: data.message
-        })
-      }, 500)
+      // Send streaming message to existing chat
+      reset()
+      await sendStreamingMessage(chatId, data.message)
     }
   }
 
@@ -421,7 +513,7 @@ const Chat = () => {
                   ))}
 
                   {/* Streaming message */}
-                  {isStreaming && streamingMessage && (
+                  {isStreaming && (streamingMessage || streamingContent) && (
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -432,14 +524,47 @@ const Chat = () => {
                       </div>
                       <div className="flex-1">
                         <div className="inline-block p-4 rounded-2xl rounded-bl-md bg-dark-700 border border-dark-600">
-                          <div className="flex items-center space-x-2">
-                            <div className="flex space-x-1">
-                              <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce"></div>
-                              <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                              <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                          {streamingContent ? (
+                            <ReactMarkdown
+                              components={{
+                                code({ node, inline, className, children, ...props }) {
+                                  const match = /language-(\w+)/.exec(className || '')
+                                  return !inline && match ? (
+                                    <SyntaxHighlighter
+                                      style={vscDarkPlus}
+                                      language={match[1]}
+                                      PreTag="div"
+                                      className="rounded-lg my-2"
+                                      {...props}
+                                    >
+                                      {String(children).replace(/\n$/, '')}
+                                    </SyntaxHighlighter>
+                                  ) : (
+                                    <code className="bg-dark-600 px-1 py-0.5 rounded text-sm" {...props}>
+                                      {children}
+                                    </code>
+                                  )
+                                }
+                              }}
+                            >
+                              {streamingContent}
+                            </ReactMarkdown>
+                          ) : (
+                            <div className="flex items-center space-x-2">
+                              <div className="flex space-x-1">
+                                <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce"></div>
+                                <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                                <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                              </div>
+                              <span className="text-sm text-gray-400">{streamingMessage}</span>
                             </div>
-                            <span className="text-sm text-gray-400">{streamingMessage}</span>
-                          </div>
+                          )}
+                          {streamingContent && (
+                            <div className="mt-2 flex items-center space-x-1">
+                              <div className="w-1 h-4 bg-primary-500 animate-pulse"></div>
+                              <span className="text-xs text-gray-500">AI is typing...</span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </motion.div>
@@ -507,7 +632,7 @@ const Chat = () => {
                 </div>
               </div>
               <p className="text-xs text-gray-500 mt-2 text-center">
-                Press Enter to send, Shift+Enter for new line
+                Press Enter to send, Shift+Enter for new line • Powered by Google Gemini AI
               </p>
             </form>
           </div>

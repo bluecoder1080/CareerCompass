@@ -252,6 +252,154 @@ router.post('/:id/message', protect, [
   }
 });
 
+// @desc    Send message to chat with streaming response
+// @route   POST /api/chat/:id/message/stream
+// @access  Private
+router.post('/:id/message/stream', protect, [
+  body('content').trim().notEmpty().withMessage('Message content is required')
+    .isLength({ max: 10000 }).withMessage('Message cannot exceed 10000 characters'),
+], async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation failed',
+        errors: errors.array(),
+      });
+    }
+
+    const chat = await Chat.findOne({
+      _id: req.params.id,
+      user: req.user.id,
+      status: 'active',
+    }).populate('context.userProfile');
+
+    if (!chat) {
+      return res.status(404).json({
+        success: false,
+        message: 'Chat not found or not accessible',
+      });
+    }
+
+    const { content } = req.body;
+    const startTime = Date.now();
+
+    // Add user message
+    await chat.addMessage('user', content);
+
+    // Set up Server-Sent Events
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': 'Cache-Control',
+    });
+
+    // Send initial response
+    res.write(`data: ${JSON.stringify({ type: 'start', message: 'Generating response...' })}\n\n`);
+
+    try {
+      const conversationHistory = chat.getConversationHistory(10);
+      const context = {
+        userProfile: chat.context.userProfile?.toObject(),
+        category: chat.category,
+        careerStage: chat.context.careerStage,
+      };
+
+      // Try streaming response first
+      const aiResponse = await mlService.generateChatResponse(conversationHistory, {
+        context,
+        temperature: chat.settings.temperature,
+        maxTokens: chat.settings.maxTokens,
+        stream: true,
+      });
+
+      if (aiResponse.stream) {
+        // Handle streaming response
+        let fullResponse = '';
+        
+        for await (const chunk of aiResponse.stream) {
+          const chunkText = chunk.text();
+          fullResponse += chunkText;
+          
+          res.write(`data: ${JSON.stringify({ 
+            type: 'chunk', 
+            content: chunkText,
+            fullContent: fullResponse 
+          })}\n\n`);
+        }
+
+        const processingTime = Date.now() - startTime;
+
+        // Save the complete response to database
+        await chat.addMessage('assistant', fullResponse, {
+          model: aiResponse.model,
+          tokens: fullResponse.split(' ').length, // Approximate token count
+          processingTime,
+          provider: aiResponse.provider,
+        });
+
+        // Send completion event
+        res.write(`data: ${JSON.stringify({ 
+          type: 'complete', 
+          content: fullResponse,
+          processingTime,
+          model: aiResponse.model,
+          provider: aiResponse.provider
+        })}\n\n`);
+
+      } else {
+        // Fallback to regular response
+        const processingTime = Date.now() - startTime;
+        
+        await chat.addMessage('assistant', aiResponse.content, {
+          model: aiResponse.model,
+          tokens: aiResponse.tokens,
+          processingTime,
+          provider: aiResponse.provider,
+        });
+
+        res.write(`data: ${JSON.stringify({ 
+          type: 'complete', 
+          content: aiResponse.content,
+          processingTime,
+          model: aiResponse.model,
+          provider: aiResponse.provider
+        })}\n\n`);
+      }
+
+    } catch (aiError) {
+      console.error('AI response generation failed:', aiError);
+      
+      const fallbackMessage = "I apologize, but I'm having trouble generating a response right now. Please try again in a moment.";
+      await chat.addMessage('assistant', fallbackMessage, {
+        model: 'fallback',
+        error: true,
+      });
+
+      res.write(`data: ${JSON.stringify({ 
+        type: 'error', 
+        content: fallbackMessage,
+        error: 'AI service temporarily unavailable'
+      })}\n\n`);
+    }
+
+    res.write(`data: ${JSON.stringify({ type: 'end' })}\n\n`);
+    res.end();
+
+  } catch (error) {
+    console.error('Streaming chat error:', error);
+    res.write(`data: ${JSON.stringify({ 
+      type: 'error', 
+      content: 'An unexpected error occurred',
+      error: error.message 
+    })}\n\n`);
+    res.end();
+  }
+});
+
 // @desc    Update chat settings
 // @route   PUT /api/chat/:id/settings
 // @access  Private
