@@ -2,13 +2,19 @@ import axios from 'axios'
 import toast from 'react-hot-toast'
 
 // Create axios instance
+const baseURL = import.meta.env.VITE_API_URL || 
+                (import.meta.env.PROD ? 'https://careercompass-backend-mssq.onrender.com/api' : 'http://localhost:5000/api')
+
+console.log('🔗 API Base URL:', baseURL)
+console.log('🌍 Environment:', import.meta.env.MODE)
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 
-           (import.meta.env.PROD ? 'https://careercompass-backend-mssq.onrender.com/api' : 'http://localhost:5000/api'),
+  baseURL,
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // Important for CORS with credentials
 })
 
 // Request interceptor

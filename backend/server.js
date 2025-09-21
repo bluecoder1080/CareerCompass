@@ -41,20 +41,58 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-// CORS configuration - Simple and reliable
+// CORS configuration - Enhanced for development
 const corsOptions = {
-  origin: [
-    'http://localhost:5173',
-    'http://localhost:5174',
-    'http://localhost:5176',
-    'http://127.0.0.1:5173',
-    'https://careercompass-fy7q.onrender.com',
-    'https://careercompass-backend-mssq.onrender.com'
-  ],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      'http://localhost:5173',
+      'http://localhost:5174',
+      'http://localhost:5175',
+      'http://localhost:5176',
+      'http://127.0.0.1:5173',
+      'http://127.0.0.1:5174',
+      'http://127.0.0.1:5175',
+      'http://127.0.0.1:5176',
+      'https://careercompass-fy7q.onrender.com',
+      'https://careercompass-backend-mssq.onrender.com'
+    ];
+    
+    // In development, allow any localhost origin
+    if (process.env.NODE_ENV === 'development' && origin.includes('localhost')) {
+      console.log('🌐 CORS: Allowing development origin:', origin);
+      return callback(null, true);
+    }
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      console.log('🌐 CORS: Allowing origin:', origin);
+      callback(null, true);
+    } else {
+      console.log('❌ CORS: Blocking origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   optionsSuccessStatus: 200,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'User-Agent', 'DNT', 'Cache-Control', 'X-Mx-ReqToken', 'Keep-Alive', 'X-Requested-With', 'If-Modified-Since'],
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'Accept', 
+    'Origin', 
+    'User-Agent', 
+    'DNT', 
+    'Cache-Control', 
+    'X-Mx-ReqToken', 
+    'Keep-Alive', 
+    'X-Requested-With', 
+    'If-Modified-Since',
+    'X-Requested-With',
+    'Access-Control-Request-Method',
+    'Access-Control-Request-Headers'
+  ],
 };
 app.use(cors(corsOptions));
 
@@ -64,11 +102,14 @@ app.options('*', cors(corsOptions));
 // Fallback CORS handler for any remaining issues
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  if (corsOptions.origin.includes(origin) || !origin) {
-    res.header('Access-Control-Allow-Origin', origin || '*');
+  
+  // In development, allow all localhost origins
+  if (process.env.NODE_ENV === 'development' && origin && origin.includes('localhost')) {
+    res.header('Access-Control-Allow-Origin', origin);
     res.header('Access-Control-Allow-Credentials', 'true');
     res.header('Access-Control-Allow-Methods', corsOptions.methods.join(', '));
     res.header('Access-Control-Allow-Headers', corsOptions.allowedHeaders.join(', '));
+    console.log('🔧 Fallback CORS: Allowing development origin:', origin);
   }
 
   if (req.method === 'OPTIONS') {
