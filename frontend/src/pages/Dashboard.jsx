@@ -14,7 +14,11 @@ import {
   BookOpen,
   Zap,
   Clock,
-  CheckCircle2
+  CheckCircle2,
+  Briefcase,
+  ExternalLink,
+  GitBranch,
+  Star
 } from 'lucide-react'
 import { useQuery } from 'react-query'
 import { useAuthStore } from '../stores/authStore'
@@ -143,23 +147,77 @@ const Dashboard = () => {
     }
   ]
 
-  if (isLoading) {
-    return (
-      <div className="space-y-8">
-        {/* Loading skeletons */}
-        <div className="skeleton h-32 rounded-2xl"></div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="skeleton h-32 rounded-2xl"></div>
-          ))}
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="skeleton h-96 rounded-2xl"></div>
-          <div className="skeleton h-96 rounded-2xl"></div>
-        </div>
-      </div>
-    )
-  }
+  // Dummy projects data
+  const projects = [
+    {
+      id: 1,
+      title: 'E-Commerce Platform',
+      description: 'Full-stack MERN application with payment integration',
+      technologies: ['React', 'Node.js', 'MongoDB', 'Stripe'],
+      status: 'Completed',
+      stars: 45,
+      link: '#'
+    },
+    {
+      id: 2,
+      title: 'Task Management App',
+      description: 'Real-time collaborative task manager with drag-and-drop',
+      technologies: ['Next.js', 'Socket.io', 'PostgreSQL'],
+      status: 'In Progress',
+      stars: 28,
+      link: '#'
+    },
+    {
+      id: 3,
+      title: 'AI Chatbot Assistant',
+      description: 'Intelligent chatbot using OpenAI API and natural language processing',
+      technologies: ['Python', 'FastAPI', 'OpenAI', 'React'],
+      status: 'Completed',
+      stars: 67,
+      link: '#'
+    }
+  ]
+
+  // Dummy tech updates data
+  const dummyTechUpdates = [
+    {
+      _id: '1',
+      title: 'React 19 Released with Major Performance Improvements',
+      summary: 'The latest version includes automatic batching, transitions, and improved concurrent rendering capabilities.',
+      category: 'framework_update',
+      publishedAt: new Date().toISOString()
+    },
+    {
+      _id: '2',
+      title: 'AI-Powered Development Tools Gain Traction',
+      summary: 'GitHub Copilot and similar AI assistants are becoming essential tools for modern developers, boosting productivity by 30%.',
+      category: 'trending_technology',
+      publishedAt: new Date(Date.now() - 86400000).toISOString()
+    },
+    {
+      _id: '3',
+      title: 'TypeScript 5.5 Introduces Enhanced Type Safety',
+      summary: 'New features include improved inference, better error messages, and performance optimizations for large codebases.',
+      category: 'framework_update',
+      publishedAt: new Date(Date.now() - 172800000).toISOString()
+    },
+    {
+      _id: '4',
+      title: 'Demand for Full-Stack Developers Increases 40%',
+      summary: 'Industry reports show growing demand for developers with both frontend and backend expertise, with competitive salaries.',
+      category: 'job_market',
+      publishedAt: new Date(Date.now() - 259200000).toISOString()
+    },
+    {
+      _id: '5',
+      title: 'Docker & Kubernetes Skills in High Demand',
+      summary: 'Container orchestration expertise continues to be one of the most sought-after skills in DevOps and cloud computing.',
+      category: 'trending_technology',
+      publishedAt: new Date(Date.now() - 345600000).toISOString()
+    }
+  ]
+
+  // Show content immediately - removed loading state skeleton
 
   return (
     <div className="space-y-8">
@@ -480,11 +538,81 @@ const Dashboard = () => {
             </div>
           </motion.div>
 
-          {/* Tech Updates */}
+          {/* Projects */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7 }}
+            className="card"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-white flex items-center">
+                <Briefcase className="w-4 h-4 mr-2 text-success-400" />
+                My Projects
+              </h3>
+              <Link
+                to="/app/projects"
+                className="text-sm text-success-400 hover:text-success-300 transition-colors"
+              >
+                View all →
+              </Link>
+            </div>
+            
+            <div className="space-y-3">
+              {projects.slice(0, 2).map((project) => (
+                <div
+                  key={project.id}
+                  className="p-3 bg-dark-700/30 rounded-lg border border-dark-600/30 hover:border-dark-500/50 transition-colors"
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <h4 className="text-sm font-medium text-white">
+                      {project.title}
+                    </h4>
+                    <span className={cn(
+                      'px-2 py-0.5 text-xs rounded-lg border',
+                      project.status === 'Completed'
+                        ? 'bg-success-500/20 text-success-400 border-success-500/30'
+                        : 'bg-warning-500/20 text-warning-400 border-warning-500/30'
+                    )}>
+                      {project.status}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-400 mb-2">
+                    {project.description}
+                  </p>
+                  <div className="flex flex-wrap gap-1 mb-2">
+                    {project.technologies.slice(0, 3).map((tech) => (
+                      <span
+                        key={tech}
+                        className="px-1.5 py-0.5 bg-primary-500/10 text-primary-400 text-xs rounded border border-primary-500/20"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-1 text-xs text-gray-400">
+                      <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                      <span>{project.stars}</span>
+                    </div>
+                    <a
+                      href={project.link}
+                      className="text-xs text-primary-400 hover:text-primary-300 flex items-center space-x-1"
+                    >
+                      <span>View</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Tech Updates */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
             className="card"
           >
             <div className="flex items-center justify-between mb-4">
@@ -501,7 +629,7 @@ const Dashboard = () => {
             </div>
             
             <div className="space-y-3">
-              {dashboardData?.techUpdates?.slice(0, 3).map((update, index) => (
+              {dummyTechUpdates.slice(0, 3).map((update, index) => (
                 <div
                   key={update._id}
                   className="p-3 bg-dark-700/30 rounded-lg border border-dark-600/30 hover:border-dark-500/50 transition-colors cursor-pointer"
@@ -521,11 +649,7 @@ const Dashboard = () => {
                     </span>
                   </div>
                 </div>
-              )) || (
-                <p className="text-sm text-gray-400 text-center py-4">
-                  No updates available
-                </p>
-              )}
+              ))}
             </div>
           </motion.div>
         </div>

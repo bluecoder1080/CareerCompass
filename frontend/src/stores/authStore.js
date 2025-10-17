@@ -106,8 +106,6 @@ const useAuthStore = create(
           isAuthenticated: false,
           isLoading: false,
         })
-
-        toast.success('Logged out successfully')
       },
 
       // Update user data
