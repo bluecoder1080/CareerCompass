@@ -35,24 +35,186 @@ const Resume = () => {
   const [selectedTemplate, setSelectedTemplate] = useState('modern')
   const [uploadProgress, setUploadProgress] = useState(0)
 
-  // Fetch resumes list
-  const { data: resumes = [], isLoading: resumesLoading } = useQuery(
-    'resumes',
-    () => api.get('/resumes').then(res => res.data.data),
+  // Dummy resumes data for immediate display
+  const resumes = [
     {
-      staleTime: 2 * 60 * 1000,
+      _id: '1',
+      title: 'Senior Developer Resume',
+      version: 2,
+      updatedAt: new Date().toISOString(),
+      aiAnalysis: { atsScore: 92 },
+      settings: { template: 'modern', colorScheme: 'blue' }
+    },
+    {
+      _id: '2',
+      title: 'Product Manager Resume',
+      version: 1,
+      updatedAt: new Date(Date.now() - 86400000 * 3).toISOString(),
+      aiAnalysis: { atsScore: 87 },
+      settings: { template: 'classic', colorScheme: 'green' }
+    },
+    {
+      _id: '3',
+      title: 'Data Scientist Resume',
+      version: 3,
+      updatedAt: new Date(Date.now() - 86400000 * 7).toISOString(),
+      aiAnalysis: { atsScore: 95 },
+      settings: { template: 'creative', colorScheme: 'purple' }
     }
-  )
+  ]
 
-  // Fetch current resume
-  const { data: currentResume, isLoading: resumeLoading } = useQuery(
-    ['resume', resumeId],
-    () => resumeId ? api.get(`/resumes/${resumeId}`).then(res => res.data.data) : null,
-    {
-      enabled: !!resumeId,
-      staleTime: 30 * 1000,
+  // Dummy current resume data
+  const currentResume = resumeId ? {
+    _id: resumeId,
+    title: 'Senior Full-Stack Developer Resume',
+    version: 2,
+    updatedAt: new Date().toISOString(),
+    personalInfo: {
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'john.doe@example.com',
+      phone: '+1 (555) 123-4567',
+      location: 'San Francisco, CA',
+      linkedin: 'linkedin.com/in/johndoe',
+      github: 'github.com/johndoe',
+      website: 'johndoe.dev'
+    },
+    summary: 'Experienced Full-Stack Developer with 8+ years of expertise in building scalable web applications. Proficient in React, Node.js, and cloud technologies. Passionate about creating elegant solutions to complex problems and mentoring junior developers.',
+    experience: [
+      {
+        _id: 'exp1',
+        title: 'Senior Full-Stack Developer',
+        company: 'Tech Innovation Inc.',
+        location: 'San Francisco, CA',
+        startDate: '2022-01-01',
+        current: true,
+        description: '• Led development of microservices architecture serving 1M+ users\n• Mentored team of 5 junior developers\n• Improved application performance by 40%\n• Implemented CI/CD pipeline reducing deployment time by 60%',
+        highlights: ['React', 'Node.js', 'AWS', 'Docker', 'MongoDB']
+      },
+      {
+        _id: 'exp2',
+        title: 'Full-Stack Developer',
+        company: 'StartupXYZ',
+        location: 'Remote',
+        startDate: '2019-06-01',
+        endDate: '2021-12-31',
+        description: '• Developed RESTful APIs handling 10K+ requests/day\n• Built responsive web applications using React and Redux\n• Collaborated with design team to implement pixel-perfect UIs\n• Optimized database queries reducing load time by 50%',
+        highlights: ['React', 'Express.js', 'PostgreSQL', 'Redux']
+      },
+      {
+        _id: 'exp3',
+        title: 'Junior Developer',
+        company: 'Digital Solutions Co.',
+        location: 'New York, NY',
+        startDate: '2017-07-01',
+        endDate: '2019-05-31',
+        description: '• Built and maintained client websites\n• Implemented new features based on client requirements\n• Fixed bugs and improved code quality\n• Participated in code reviews and agile ceremonies',
+        highlights: ['JavaScript', 'HTML/CSS', 'Git', 'Agile']
+      }
+    ],
+    education: [
+      {
+        _id: 'edu1',
+        degree: 'Bachelor of Science',
+        field: 'Computer Science',
+        institution: 'University of California, Berkeley',
+        location: 'Berkeley, CA',
+        startDate: '2013-09-01',
+        endDate: '2017-05-31',
+        gpa: '3.8',
+        achievements: ['Dean\'s List (3 years)', 'Computer Science Award 2017', 'ACM President']
+      }
+    ],
+    skills: {
+      technical: [
+        { name: 'JavaScript/TypeScript', level: 'expert' },
+        { name: 'React.js', level: 'expert' },
+        { name: 'Node.js', level: 'expert' },
+        { name: 'Python', level: 'advanced' },
+        { name: 'MongoDB', level: 'advanced' },
+        { name: 'PostgreSQL', level: 'advanced' },
+        { name: 'AWS', level: 'intermediate' },
+        { name: 'Docker/Kubernetes', level: 'intermediate' }
+      ],
+      soft: [
+        'Leadership',
+        'Communication',
+        'Problem Solving',
+        'Team Collaboration',
+        'Project Management'
+      ]
+    },
+    projects: [
+      {
+        _id: 'proj1',
+        name: 'E-Commerce Platform',
+        description: 'Full-stack MERN application with payment integration',
+        technologies: ['React', 'Node.js', 'MongoDB', 'Stripe'],
+        link: 'github.com/johndoe/ecommerce'
+      },
+      {
+        _id: 'proj2',
+        name: 'AI Chatbot Assistant',
+        description: 'Intelligent chatbot using OpenAI API and NLP',
+        technologies: ['Python', 'FastAPI', 'OpenAI', 'React'],
+        link: 'github.com/johndoe/ai-chatbot'
+      }
+    ],
+    certifications: [
+      {
+        name: 'AWS Certified Solutions Architect',
+        issuer: 'Amazon Web Services',
+        date: '2023-06-01'
+      },
+      {
+        name: 'MongoDB Certified Developer',
+        issuer: 'MongoDB University',
+        date: '2022-11-01'
+      }
+    ],
+    settings: {
+      template: 'modern',
+      colorScheme: 'blue'
+    },
+    fileInfo: {
+      originalName: 'John_Doe_Resume.pdf',
+      fileSize: 245760,
+      uploadedAt: new Date(Date.now() - 86400000 * 5).toISOString()
+    },
+    aiAnalysis: {
+      atsScore: 92,
+      lastAnalyzed: new Date(Date.now() - 3600000 * 2).toISOString(),
+      strengthAreas: [
+        'Clear and concise professional summary',
+        'Quantified achievements with metrics',
+        'Relevant technical skills well-highlighted',
+        'Strong action verbs used throughout',
+        'Consistent formatting and structure'
+      ],
+      improvementAreas: [
+        'Add more specific project outcomes',
+        'Include industry-specific keywords',
+        'Add volunteer or leadership activities'
+      ],
+      suggestions: [
+        'Consider adding more quantifiable metrics to your achievements (e.g., "increased revenue by X%")',
+        'Include keywords like "microservices", "scalable architecture", and "cloud-native" to improve ATS score',
+        'Add a skills section with proficiency levels for each technology',
+        'Consider adding relevant certifications or training courses',
+        'Include links to your portfolio or GitHub projects'
+      ],
+      keywords: [
+        'Full-Stack Development',
+        'React.js',
+        'Node.js',
+        'Cloud Computing',
+        'Microservices',
+        'Agile/Scrum',
+        'Leadership',
+        'Team Management'
+      ]
     }
-  )
+  } : null
 
   // Create resume mutation
   const createResumeMutation = useMutation(
@@ -400,6 +562,166 @@ const Resume = () => {
           )}
         </div>
 
+        {/* Experience */}
+        {currentResume?.experience && currentResume.experience.length > 0 && (
+          <div className="card">
+            <h3 className="text-xl font-bold text-white mb-6">Work Experience</h3>
+            <div className="space-y-6">
+              {currentResume.experience.map((exp) => (
+                <div key={exp._id} className="border-l-2 border-primary-500 pl-4">
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <h4 className="text-lg font-semibold text-white">{exp.title}</h4>
+                      <p className="text-primary-400">{exp.company}</p>
+                      <p className="text-gray-400 text-sm">{exp.location}</p>
+                    </div>
+                    <span className="text-sm text-gray-400">
+                      {new Date(exp.startDate).getFullYear()} - {exp.current ? 'Present' : new Date(exp.endDate).getFullYear()}
+                    </span>
+                  </div>
+                  <p className="text-gray-300 text-sm whitespace-pre-line mb-3">{exp.description}</p>
+                  {exp.highlights && exp.highlights.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {exp.highlights.map((highlight, idx) => (
+                        <span key={idx} className="px-2 py-1 bg-primary-500/10 text-primary-400 text-xs rounded border border-primary-500/20">
+                          {highlight}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Education */}
+        {currentResume?.education && currentResume.education.length > 0 && (
+          <div className="card">
+            <h3 className="text-xl font-bold text-white mb-6">Education</h3>
+            <div className="space-y-6">
+              {currentResume.education.map((edu) => (
+                <div key={edu._id} className="border-l-2 border-success-500 pl-4">
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <h4 className="text-lg font-semibold text-white">{edu.degree} in {edu.field}</h4>
+                      <p className="text-success-400">{edu.institution}</p>
+                      <p className="text-gray-400 text-sm">{edu.location}</p>
+                    </div>
+                    <span className="text-sm text-gray-400">
+                      {new Date(edu.startDate).getFullYear()} - {new Date(edu.endDate).getFullYear()}
+                    </span>
+                  </div>
+                  {edu.gpa && (
+                    <p className="text-gray-300 text-sm mb-2">GPA: {edu.gpa}</p>
+                  )}
+                  {edu.achievements && edu.achievements.length > 0 && (
+                    <ul className="space-y-1">
+                      {edu.achievements.map((achievement, idx) => (
+                        <li key={idx} className="text-sm text-gray-300 flex items-start">
+                          <CheckCircle className="w-4 h-4 text-success-400 mr-2 mt-0.5 flex-shrink-0" />
+                          {achievement}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Skills */}
+        {currentResume?.skills && (
+          <div className="card">
+            <h3 className="text-xl font-bold text-white mb-6">Skills</h3>
+            <div className="space-y-6">
+              {currentResume.skills.technical && currentResume.skills.technical.length > 0 && (
+                <div>
+                  <h4 className="text-lg font-semibold text-white mb-3">Technical Skills</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {currentResume.skills.technical.map((skill, idx) => (
+                      <div key={idx} className="flex items-center justify-between p-3 bg-dark-700/30 rounded-lg">
+                        <span className="text-white">{skill.name}</span>
+                        <span className={cn(
+                          'px-2 py-1 text-xs rounded border',
+                          skill.level === 'expert' && 'bg-success-500/20 text-success-400 border-success-500/30',
+                          skill.level === 'advanced' && 'bg-primary-500/20 text-primary-400 border-primary-500/30',
+                          skill.level === 'intermediate' && 'bg-warning-500/20 text-warning-400 border-warning-500/30'
+                        )}>
+                          {skill.level}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {currentResume.skills.soft && currentResume.skills.soft.length > 0 && (
+                <div>
+                  <h4 className="text-lg font-semibold text-white mb-3">Soft Skills</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {currentResume.skills.soft.map((skill, idx) => (
+                      <span key={idx} className="px-3 py-2 bg-accent-500/10 text-accent-400 text-sm rounded-lg border border-accent-500/20">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Projects */}
+        {currentResume?.projects && currentResume.projects.length > 0 && (
+          <div className="card">
+            <h3 className="text-xl font-bold text-white mb-6">Featured Projects</h3>
+            <div className="space-y-4">
+              {currentResume.projects.map((project) => (
+                <div key={project._id} className="p-4 bg-dark-700/30 rounded-lg border border-dark-600/30">
+                  <div className="flex items-start justify-between mb-2">
+                    <h4 className="text-lg font-semibold text-white">{project.name}</h4>
+                    {project.link && (
+                      <a href={`https://${project.link}`} target="_blank" rel="noopener noreferrer" className="text-primary-400 hover:text-primary-300">
+                        <Share2 className="w-4 h-4" />
+                      </a>
+                    )}
+                  </div>
+                  <p className="text-gray-300 text-sm mb-3">{project.description}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {project.technologies.map((tech, idx) => (
+                      <span key={idx} className="px-2 py-1 bg-primary-500/10 text-primary-400 text-xs rounded border border-primary-500/20">
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Certifications */}
+        {currentResume?.certifications && currentResume.certifications.length > 0 && (
+          <div className="card">
+            <h3 className="text-xl font-bold text-white mb-6">Certifications</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {currentResume.certifications.map((cert, idx) => (
+                <div key={idx} className="flex items-start space-x-3 p-4 bg-dark-700/30 rounded-lg border border-dark-600/30">
+                  <div className="w-10 h-10 bg-gradient-to-br from-warning-500 to-orange-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <CheckCircle className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-white font-semibold">{cert.name}</h4>
+                    <p className="text-gray-400 text-sm">{cert.issuer}</p>
+                    <p className="text-gray-500 text-xs">{new Date(cert.date).toLocaleDateString()}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* AI Analysis */}
         {currentResume?.aiAnalysis && (
           <div className="card">
@@ -436,13 +758,67 @@ const Resume = () => {
               </div>
             </div>
 
+            {/* Strength Areas */}
+            {currentResume.aiAnalysis.strengthAreas?.length > 0 && (
+              <div className="mb-6">
+                <h4 className="text-lg font-semibold text-white mb-3 flex items-center">
+                  <CheckCircle className="w-5 h-5 text-success-400 mr-2" />
+                  Strengths
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {currentResume.aiAnalysis.strengthAreas.map((strength, index) => (
+                    <div key={index} className="flex items-start space-x-2 p-3 bg-success-500/10 rounded-lg border border-success-500/30">
+                      <CheckCircle className="w-4 h-4 text-success-400 mt-0.5 flex-shrink-0" />
+                      <p className="text-gray-300 text-sm">{strength}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Improvement Areas */}
+            {currentResume.aiAnalysis.improvementAreas?.length > 0 && (
+              <div className="mb-6">
+                <h4 className="text-lg font-semibold text-white mb-3 flex items-center">
+                  <AlertCircle className="w-5 h-5 text-warning-400 mr-2" />
+                  Areas for Improvement
+                </h4>
+                <div className="space-y-2">
+                  {currentResume.aiAnalysis.improvementAreas.map((area, index) => (
+                    <div key={index} className="flex items-start space-x-2 p-3 bg-warning-500/10 rounded-lg border border-warning-500/30">
+                      <AlertCircle className="w-4 h-4 text-warning-400 mt-0.5 flex-shrink-0" />
+                      <p className="text-gray-300 text-sm">{area}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Keywords */}
+            {currentResume.aiAnalysis.keywords?.length > 0 && (
+              <div className="mb-6">
+                <h4 className="text-lg font-semibold text-white mb-3">Detected Keywords</h4>
+                <div className="flex flex-wrap gap-2">
+                  {currentResume.aiAnalysis.keywords.map((keyword, index) => (
+                    <span key={index} className="px-3 py-2 bg-primary-500/10 text-primary-400 text-sm rounded-lg border border-primary-500/20">
+                      {keyword}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* AI Suggestions */}
             {currentResume.aiAnalysis.suggestions?.length > 0 && (
               <div>
-                <h4 className="text-lg font-semibold text-white mb-3">Suggestions</h4>
+                <h4 className="text-lg font-semibold text-white mb-3 flex items-center">
+                  <Zap className="w-5 h-5 text-purple-400 mr-2" />
+                  AI Suggestions
+                </h4>
                 <div className="space-y-2">
                   {currentResume.aiAnalysis.suggestions.map((suggestion, index) => (
-                    <div key={index} className="flex items-start space-x-3 p-3 bg-dark-700/30 rounded-lg">
-                      <AlertCircle className="w-5 h-5 text-warning-400 mt-0.5 flex-shrink-0" />
+                    <div key={index} className="flex items-start space-x-3 p-3 bg-purple-500/10 rounded-lg border border-purple-500/30">
+                      <Zap className="w-4 h-4 text-purple-400 mt-0.5 flex-shrink-0" />
                       <p className="text-gray-300 text-sm">{suggestion}</p>
                     </div>
                   ))}
@@ -473,13 +849,7 @@ const Resume = () => {
         </button>
       </div>
 
-      {resumesLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="skeleton h-64 rounded-2xl"></div>
-          ))}
-        </div>
-      ) : resumes.length === 0 ? (
+      {resumes.length === 0 ? (
         <div className="card text-center py-12">
           <FileText className="w-16 h-16 text-gray-500 mx-auto mb-4" />
           <h3 className="text-xl font-bold text-white mb-2">No resumes yet</h3>
@@ -556,14 +926,7 @@ const Resume = () => {
     return <ResumesList />
   }
 
-  if (resumeLoading) {
-    return (
-      <div className="max-w-6xl mx-auto">
-        <div className="skeleton h-32 rounded-2xl mb-8"></div>
-        <div className="skeleton h-96 rounded-2xl"></div>
-      </div>
-    )
-  }
+  // Removed loading skeleton - show content immediately
 
   return (
     <div className="max-w-6xl mx-auto">
