@@ -164,18 +164,6 @@ const Login = () => {
           </div>
         </div>
 
-        {/* Sign up link */}
-        <div className="text-center">
-          <p className="text-sm text-gray-400">
-            Don't have an account?{' '}
-            <Link
-              to="/auth/register"
-              className="text-primary-400 hover:text-primary-300 font-medium transition-colors"
-            >
-              Sign up for free
-            </Link>
-          </p>
-        </div>
       </form>
     </motion.div>
   )

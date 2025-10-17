@@ -11,7 +11,6 @@ import AuthLayout from './components/layout/AuthLayout'
 // Pages
 import Landing from './pages/Landing'
 import Login from './pages/auth/Login'
-import Register from './pages/auth/Register'
 import Dashboard from './pages/Dashboard'
 import Chat from './pages/Chat'
 import Profile from './pages/Profile'
@@ -80,7 +79,6 @@ function App() {
             {/* Auth routes */}
             <Route path="/auth" element={<AuthLayout />}>
               <Route path="login" element={<Login />} />
-              <Route path="register" element={<Register />} />
               <Route index element={<Navigate to="/auth/login" replace />} />
             </Route>
 

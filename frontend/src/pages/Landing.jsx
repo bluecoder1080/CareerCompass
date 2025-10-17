@@ -107,15 +107,9 @@ const Landing = () => {
             <div className="flex items-center space-x-4">
               <Link
                 to="/auth/login"
-                className="text-gray-400 hover:text-gray-200 transition-colors"
-              >
-                Sign In
-              </Link>
-              <Link
-                to="/auth/register"
                 className="btn-primary"
               >
-                Get Started
+                Sign In
               </Link>
             </div>
           </div>
@@ -143,19 +137,11 @@ const Landing = () => {
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
                 <Link
-                  to="/auth/register"
+                  to="/auth/login"
                   className="btn-primary text-lg px-8 py-4 group"
                 >
-                  Start Your Journey
+                  Get Started
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                </Link>
-                
-                <Link
-                  to="/auth/login"
-                  className="btn-secondary text-lg px-8 py-4"
-                >
-                  <MessageCircle className="w-5 h-5 mr-2" />
-                  Try AI Chat
                 </Link>
               </div>
 
@@ -257,7 +243,7 @@ const Landing = () => {
               </p>
 
               <Link
-                to="/auth/register"
+                to="/auth/login"
                 className="btn-primary text-lg px-8 py-4 inline-flex items-center group"
               >
                 <MessageCircle className="w-5 h-5 mr-2" />
@@ -346,18 +332,11 @@ const Landing = () => {
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
-                to="/auth/register"
+                to="/auth/login"
                 className="btn-primary text-lg px-8 py-4 group"
               >
-                Get Started Free
+                Get Started
                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-              </Link>
-              
-              <Link
-                to="/auth/login"
-                className="btn-secondary text-lg px-8 py-4"
-              >
-                Sign In
               </Link>
             </div>
           </motion.div>
