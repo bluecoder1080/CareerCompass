@@ -16,6 +16,8 @@ import Chat from './pages/Chat'
 import Profile from './pages/Profile'
 import Psychotest from './pages/Psychotest'
 import Resume from './pages/Resume'
+import Projects from './pages/Projects'
+import TechUpdates from './pages/TechUpdates'
 import NotFound from './pages/NotFound'
 
 // Protected Route component
@@ -96,6 +98,8 @@ function App() {
               <Route path="psychotest" element={<Psychotest />} />
               <Route path="resume" element={<Resume />} />
               <Route path="resume/:resumeId" element={<Resume />} />
+              <Route path="projects" element={<Projects />} />
+              <Route path="tech-updates" element={<TechUpdates />} />
             </Route>
 
             {/* Public shared content */}

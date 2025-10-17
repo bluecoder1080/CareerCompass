@@ -31,14 +31,68 @@ const Profile = () => {
   const queryClient = useQueryClient()
   const { user } = useAuthStore()
 
-  // Fetch profile data
-  const { data: profile, isLoading } = useQuery(
-    'profile',
-    () => api.get('/profiles/me').then(res => res.data.data),
-    {
-      staleTime: 2 * 60 * 1000, // 2 minutes
+  // Use dummy profile data for immediate display
+  const profile = {
+    phone: '+1 (555) 123-4567',
+    location: {
+      city: 'San Francisco',
+      state: 'California',
+      country: 'United States'
+    },
+    currentRole: {
+      title: 'Senior Full-Stack Developer',
+      company: 'Tech Innovation Inc.'
+    },
+    bio: 'Passionate software developer with 5+ years of experience building scalable web applications. Specialized in React, Node.js, and cloud technologies.',
+    experience: [
+      {
+        _id: '1',
+        title: 'Senior Full-Stack Developer',
+        company: 'Tech Innovation Inc.',
+        location: 'San Francisco, CA',
+        startDate: '2022-01-01',
+        current: true,
+        description: 'Leading development of core platform features, mentoring junior developers, and architecting scalable solutions.'
+      },
+      {
+        _id: '2',
+        title: 'Full-Stack Developer',
+        company: 'StartupXYZ',
+        location: 'Remote',
+        startDate: '2020-06-01',
+        endDate: '2021-12-31',
+        current: false,
+        description: 'Developed RESTful APIs and responsive web applications using React and Node.js.'
+      }
+    ],
+    education: [
+      {
+        _id: '1',
+        degree: 'Bachelor of Science',
+        field: 'Computer Science',
+        institution: 'University of California, Berkeley',
+        startDate: '2016-09-01',
+        endDate: '2020-05-31',
+        gpa: '3.8'
+      }
+    ],
+    skills: [
+      { _id: '1', name: 'React', level: 'expert', category: 'framework' },
+      { _id: '2', name: 'Node.js', level: 'advanced', category: 'technical' },
+      { _id: '3', name: 'TypeScript', level: 'advanced', category: 'technical' },
+      { _id: '4', name: 'MongoDB', level: 'intermediate', category: 'technical' },
+      { _id: '5', name: 'AWS', level: 'intermediate', category: 'tool' },
+      { _id: '6', name: 'Docker', level: 'intermediate', category: 'tool' },
+      { _id: '7', name: 'Leadership', level: 'advanced', category: 'soft' },
+      { _id: '8', name: 'Communication', level: 'expert', category: 'soft' }
+    ],
+    careerGoals: {
+      shortTerm: 'Master system design and architecture patterns',
+      longTerm: 'Become a Technical Lead or Engineering Manager',
+      targetRole: 'Technical Architect',
+      targetIndustry: 'Cloud Computing / SaaS'
     }
-  )
+  }
 
   // Update profile mutation
   const updateProfileMutation = useMutation(
@@ -114,17 +168,7 @@ const Profile = () => {
     { value: 'expert', label: 'Expert' },
   ]
 
-  if (isLoading) {
-    return (
-      <div className="max-w-6xl mx-auto">
-        <div className="skeleton h-32 rounded-2xl mb-8"></div>
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          <div className="skeleton h-96 rounded-2xl"></div>
-          <div className="lg:col-span-3 skeleton h-96 rounded-2xl"></div>
-        </div>
-      </div>
-    )
-  }
+  // Removed loading skeleton - display content immediately
 
   const PersonalInfoSection = () => {
     const { register, handleSubmit, formState: { errors } } = useForm({
