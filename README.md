@@ -14,6 +14,12 @@
   <strong>🎯 AI-powered career guidance • 📊 Psychometric assessments • 📄 Smart resume building • 💬 Intelligent chat assistant</strong>
 </p>
 
+---
+
+<img src="backend/readmeStuff/FrontPage.png" alt="CareerCompass Platform" width="100%" style="border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+
+---
+
 <p align="center">
   <a href="#-features">Features</a> •
   <a href="#-quick-start">Quick Start</a> •
@@ -28,22 +34,11 @@
 
 ## 📋 Table of Contents
 
-- [🌟 Features](#-features)
-- [🚀 Quick Start](#-quick-start)
-- [🌐 Live Demo](#-live-demo)
-- [🐳 Docker Deployment](#-docker-deployment)
-- [🔧 Configuration](#-configuration)
-- [📁 Project Structure](#-project-structure)
-- [🎯 Usage Guide](#-usage-guide)
-- [🔌 API Documentation](#-api-documentation)
-- [🧪 Testing](#-testing)
-- [🚀 Deployment](#-deployment)
-- [🛠️ Development](#-development)
-- [🤝 Contributing](#-contributing)
-- [📝 License](#-license)
-- [🙏 Acknowledgments](#-acknowledgments)
-- [📞 Support](#-support)
-- [🗺️ Roadmap](#-roadmap)
+[🌟 Features](#-features) • [🚀 Quick Start](#-quick-start) • [🌐 Live Demo](#-live-demo) • [🐳 Docker Deployment](#-docker-deployment) • [🔧 Configuration](#-configuration) • [📁 Project Structure](#-project-structure) • [🎯 Usage Guide](#-usage-guide) • [🔌 API Documentation](#-api-documentation) • [🧪 Testing](#-testing) • [🚀 Deployment](#-deployment) • [🛠️ Development](#-development) • [🤝 Contributing](#-contributing) • [📝 License](#-license) • [🙏 Acknowledgments](#-acknowledgments) • [📞 Support](#-support) • [🗺️ Roadmap](#-roadmap)
+
+---
+
+---
 
 ## 🌟 Features
 
@@ -103,13 +98,11 @@
 
 </div>
 
-**Key Technical Features:**
-- 📱 **Responsive Design**: Mobile-first UI with dark theme
-- ♿ **Accessibility**: WCAG compliant interface
-- ⚡ **Real-time Features**: Live chat and streaming responses
-- 🐳 **Containerized**: Docker-ready architecture
-- 🔒 **Secure**: JWT authentication and data encryption
-- 📈 **Scalable**: Cloud-native deployment ready
+**✨ Key Technical Features:**
+
+📱 **Responsive Design** • ♿ **Accessibility** • ⚡ **Real-time Features** • 🐳 **Containerized** • 🔒 **Secure** • 📈 **Scalable**
+
+---
 
 ## 🚀 Quick Start
 
@@ -193,15 +186,25 @@ npm run dev:frontend # Frontend on http://localhost:5173
 - **Backend API**: http://localhost:5000
 - **Health Check**: http://localhost:5000/health
 
+<div align="center">
+
+🎉 **You're all set!** Start building your career path with AI-powered guidance.
+
+</div>
+
+---
+
 ## 🌐 Live Demo
 
 <div align="center">
 
-🚀 **[Try CareerCompass Live](https://careercompass-fy7q.onrender.com)**
+### 🚀 [Try CareerCompass Live](https://careercompass-fy7q.onrender.com)**
 
 *Experience the full power of AI-driven career guidance*
 
 </div>
+
+---
 
 ## 🐳 Docker Deployment
 
@@ -227,6 +230,8 @@ docker-compose -f docker-compose.prod.yml build
 # Deploy to production
 docker-compose -f docker-compose.prod.yml up -d
 ```
+
+---
 
 ## 🔧 Configuration
 
@@ -272,6 +277,8 @@ MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/careercompass
 MONGO_URI=mongodb://admin:password@mongodb:27017/careercompass?authSource=admin
 ```
 
+---
+
 ## 📁 Project Structure
 
 ```
@@ -302,6 +309,8 @@ CareerCompass/
 ├── 📄 package.json            # Root package configuration
 └── 📖 README.md               # This file
 ```
+
+---
 
 ## 🎯 Usage Guide
 
@@ -336,6 +345,8 @@ CareerCompass/
 - See personalized career recommendations
 - Track your development progress
 - Stay updated with relevant tech news
+
+---
 
 ## 🔌 API Documentation
 
@@ -382,6 +393,8 @@ POST /api/ml/analyze       # Analyze text with AI
 POST /api/ml/chat          # Chat with AI assistant
 ```
 
+---
+
 ## 🧪 Testing
 
 ### Run Tests
@@ -403,6 +416,8 @@ npm test
 - Integration tests for AI services
 - Frontend component testing
 - End-to-end user flow testing
+
+---
 
 ## 🚀 Deployment
 
@@ -435,6 +450,8 @@ gcloud run deploy --image gcr.io/PROJECT-ID/careercompass-frontend --platform ma
 
 #### AWS ECS/Fargate
 Use the provided `docker-compose.yml` as a reference for ECS task definitions.
+
+---
 
 ## 🛠️ Development
 
@@ -470,6 +487,8 @@ npm run type-check
 | `PORT` | Backend server port | No | 5000 |
 | `NODE_ENV` | Environment mode | No | development |
 
+---
+
 ## 🤝 Contributing
 
 1. Fork the repository
@@ -484,6 +503,8 @@ npm run type-check
 - Add tests for new features
 - Update documentation as needed
 - Ensure all tests pass before submitting PR
+
+---
 
 ## 🔧 Troubleshooting
 
@@ -516,9 +537,13 @@ npm run type-check
 3. **Check environment variables**: Ensure all required variables are set
 4. **Review deployment settings**: Verify Render or other deployment configurations
 
+---
+
 ## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
 
 ## 🙏 Acknowledgments
 
@@ -529,12 +554,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Framer Motion** for smooth animations and transitions
 - **Render** for hosting and deployment services
 
+---
+
 ## 📞 Support
 
 - **Documentation**: Check this README and inline code comments
 - **Issues**: Report bugs and request features via [GitHub Issues](https://github.com/bluecoder1080/CareerCompass/issues)
 - **Discussions**: Join community discussions in [GitHub Discussions](https://github.com/bluecoder1080/CareerCompass/discussions)
 - **Email**: Contact the team at adityasingh1080z@gmail.com
+
+---
 
 ## 🗺️ Roadmap
 
@@ -584,5 +613,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
   <img src="https://img.shields.io/github/watchers/bluecoder1080/CareerCompass?style=social" alt="GitHub watchers">
 </p>
 
-</div>  
+</div> 
+ 
  
